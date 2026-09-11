@@ -21,7 +21,7 @@ The Package Docs for one Major Line, as of that line's latest release. A Package
 _Avoid_: Snapshot, release docs
 
 **Docs Site**:
-The single public site that hosts every Package's Package Docs, each under its own path (e.g. `docs.plank.co/snapshots`).
+The single public site that hosts every Package's Package Docs, each under its own path (e.g. `packages.plank.co/snapshots`).
 _Avoid_: Docs portal, per-package site
 
 **Docs Tooling**:
