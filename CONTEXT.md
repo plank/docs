@@ -23,3 +23,7 @@ _Avoid_: Snapshot, release docs
 **Docs Site**:
 The single public site that hosts every Package's Package Docs, each under its own path (e.g. `docs.plank.co/snapshots`).
 _Avoid_: Docs portal, per-package site
+
+**Docs Tooling**:
+The shared build, theme and deploy that turns a Package's Package Docs into Docs Versions on the Docs Site. It lives in this repo, and every Package uses the same one.
+_Avoid_: Docs Build, Docs Theme, shared build tooling
