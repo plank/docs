@@ -9,7 +9,7 @@ How can several Docs Versions of one Package (e.g. `/snapshots/13.x`, `/snapshot
 User-set constraints this research is measured against:
 
 - Package Docs are markdown, written in each Package's own repo.
-- Each Package's release workflow builds and deploys its own section of one Docs Site at `docs.plank.co/<package>`, using shared build tooling.
+- Each Package's release workflow builds and deploys its own section of one Docs Site at `packages.plank.co/<package>`, using shared build tooling.
 - One Docs Version per Major Line (e.g. `/snapshots/13.x`).
 - Hosted on Cloudflare with $0 recurring cost and no third-party runtime services.
 
@@ -24,7 +24,7 @@ Everything below reports how each option behaves and what it costs. None of it i
 | **3. Router Worker in front** (service bindings to version Workers, or to Pages) | Its own version Worker. The router is redeployed when the set of Major Lines changes. | Router code at request time | Option 1's count + 1 | Every routed request counts against 100,000/day, account-wide. | Not needed |
 | **3′. Router only on the exact `/snapshots/` URL** (Option 1 serves the versions) | Same as Option 1 | Router code, or a config value set at deploy | Option 1's count (the router can replace the root Worker) | Only landing-page hits count against 100,000/day. | Not needed |
 | **4a. R2 + Worker** | Syncs its own prefix into one bucket | Pointer object or listing, read by the Worker | 1 (or more) | Every request: 1 Worker request (100k/day) and 1+ Class B operation (10M/month) | R2 subscription through checkout. Billing policy asks for a valid payment method. Usage over the free tier is billed. |
-| **4b. R2 public bucket on a custom domain** | Syncs its own prefix | Single Redirect or Bulk Redirect via API | 0 | $0 Worker requests; Class B operations per uncached read | Same as 4a. The custom domain is a whole hostname, so all of `docs.plank.co` would be the bucket. |
+| **4b. R2 public bucket on a custom domain** | Syncs its own prefix | Single Redirect or Bulk Redirect via API | 0 | $0 Worker requests; Class B operations per uncached read | Same as 4a. The custom domain is a whole hostname, so all of `packages.plank.co` would be the bucket. |
 | **4c. R2 behind a path via Origin Rules** | Syncs its own prefix | As 4b | 0 | As 4b | Host-header and DNS-record overrides are Enterprise-only. |
 | **5. KV + Worker** (Workers Sites pattern) | Writes its own keys | KV pointer key | 1 | Every request: 1 Worker request and 1+ KV read (100k/day) | Not needed. Free plan allows 1,000 KV writes/day (1 per file). |
 | **6. Pages** | A complete Pages deployment | Only through a Worker in front (reduces to Option 3) | Plus Pages projects (100 per account) | Worker in front counts | Not needed |
@@ -36,7 +36,7 @@ Everything below reports how each option behaves and what it costs. None of it i
 - A route pattern can include a path. `*` is the only operator and matches zero or more of any character. Patterns can't contain infix wildcards or query parameters. "When more than one route pattern could match a request URL, the most specific route pattern wins" (e.g. `example.com/hello/*` beats `example.com/*`). [Routes, Jun 1 2026]
 - A pattern without a trailing `*` doesn't match the same path with a query string: "the only way to have a route pattern match URLs with query parameters is to terminate it with a wildcard". [Routes]
 - A route with no Worker attached negates less specific patterns: that path bypasses Workers. [Routes]
-- **Known bug:** with Worker A on `example.com/images/*` and Worker B on `example.com/images*`, the request `example.com/images/hello` goes to B. "A trailing `/*` in your pattern may not act as expected." [Known issues, Apr 23 2026] The page only documents same-prefix pairs. How a pair like `docs.plank.co/snapshots*` vs `docs.plank.co/snapshots/13.x*` resolves isn't documented, so it needs testing.
+- **Known bug:** with Worker A on `example.com/images/*` and Worker B on `example.com/images*`, the request `example.com/images/hello` goes to B. "A trailing `/*` in your pattern may not act as expected." [Known issues, Apr 23 2026] The page only documents same-prefix pairs. How a pair like `packages.plank.co/snapshots*` vs `packages.plank.co/snapshots/13.x*` resolves isn't documented, so it needs testing.
 - A route needs "an active Cloudflare zone" and a proxied (orange-cloud) DNS record for the hostname. [Routes]
 - The route prefix is **not stripped**. A Worker's assets "must be nested in a directory structure that mirrors the desired path" (e.g. `dist/blog/…` for `example.com/blog/*`). Files outside that path aren't served. This needs Wrangler v3.98.0 or later. [Serving a subdirectory, Apr 23 2026]
 - Workers Custom Domains "point all paths of a domain or subdomain to your Worker". They match on hostname only. [Custom Domains, Aug 14 2026]
@@ -95,7 +95,7 @@ On 2026-09-11, `gh repo list plank --source --no-archived --visibility public` s
 
 ### Option 1: A Worker per Docs Version, plus a per-Package root Worker
 
-**How it works.** Each Docs Version is an assets-only Worker, e.g. `snapshots-13x`. Its assets sit under `dist/snapshots/13.x/`, and its route is `docs.plank.co/snapshots/13.x*` (or `…/13.x/*` plus `…/13.x`). A per-Package root Worker takes the less specific `docs.plank.co/snapshots/*` (plus `docs.plank.co/snapshots`). It answers `/snapshots/`, and it answers unknown versions with a 404. The Docs Site shell's `docs.plank.co/*` stays the least specific route.
+**How it works.** Each Docs Version is an assets-only Worker, e.g. `snapshots-13x`. Its assets sit under `dist/snapshots/13.x/`, and its route is `packages.plank.co/snapshots/13.x*` (or `…/13.x/*` plus `…/13.x`). A per-Package root Worker takes the less specific `packages.plank.co/snapshots/*` (plus `packages.plank.co/snapshots`). It answers `/snapshots/`, and it answers unknown versions with a 404. The Docs Site shell's `packages.plank.co/*` stays the least specific route.
 
 **What one Major Line's release deploys.** Only its own Worker. No other Major Line's deploy is touched, so independent releases don't race. The root Worker changes only when "newest" changes.
 
@@ -112,11 +112,11 @@ On 2026-09-11, `gh repo list plank --source --no-archived --visibility public` s
 - Requests: static-asset only, so $0.
 - The route-specificity known bug means the chosen pattern pair needs testing.
 
-**Setup and payment.** `plank.co` must be an active Cloudflare zone, with a proxied DNS record for `docs.plank.co`. Each Package repo needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets; Cloudflare's CI guide uses the "Edit Cloudflare Workers" token template. No payment method is needed.
+**Setup and payment.** `plank.co` must be an active Cloudflare zone, with a proxied DNS record for `packages.plank.co`. Each Package repo needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets; Cloudflare's CI guide uses the "Edit Cloudflare Workers" token template. No payment method is needed.
 
 ### Option 2: One Worker per Package, rebuilt with every Major Line at each release
 
-**How it works.** One assets-only Worker per Package, routed at `docs.plank.co/snapshots*` (or `/snapshots/*` plus `/snapshots`). Its assets hold `dist/snapshots/10.x/ … 13.x/` together with a `_redirects` file.
+**How it works.** One assets-only Worker per Package, routed at `packages.plank.co/snapshots*` (or `/snapshots/*` plus `/snapshots`). Its assets hold `dist/snapshots/10.x/ … 13.x/` together with a `_redirects` file.
 
 **What one Major Line's release deploys.** The whole Package, because each Worker version carries a complete manifest. There are two ways to source the other Major Lines:
 - *2a. Rebuild all.* The workflow checks out each `N.x` branch and builds every Docs Version. Unchanged files aren't re-uploaded (hash dedupe), so the upload cost is roughly the changed files. Build time grows with the number of Major Lines.
@@ -132,7 +132,7 @@ On 2026-09-11, `gh repo list plank --source --no-archived --visibility public` s
 
 ### Option 3: A router Worker in front
 
-**How it works.** A Worker *script* on `docs.plank.co/snapshots/*` forwards each request to per-version Workers through service bindings (no extra fee per binding call), or fetches a Pages project.
+**How it works.** A Worker *script* on `packages.plank.co/snapshots/*` forwards each request to per-version Workers through service bindings (no extra fee per binding call), or fetches a Pages project.
 
 **What one Major Line's release deploys.** Its own version Worker. Service bindings are declared in the router's configuration, so adding or retiring a Major Line means redeploying the router.
 
@@ -140,19 +140,19 @@ On 2026-09-11, `gh repo list plank --source --no-archived --visibility public` s
 
 **Free-plan limits touched.** Every request routed to the router counts against the account-wide 100,000/day. Over the limit, the route fails closed (1027) or fails open (bypasses the Worker, so the request falls to the next matching route or origin). The router also has 10 ms of CPU per request. Worker count is Option 1's plus one.
 
-**Variant 3′.** Put the router script only on the exact `docs.plank.co/snapshots/` and `docs.plank.co/snapshots` patterns, and serve versions with Option 1's Workers. Only landing-page hits then count toward the daily quota. A pattern without a trailing `*` doesn't match the same URL with a query string.
+**Variant 3′.** Put the router script only on the exact `packages.plank.co/snapshots/` and `packages.plank.co/snapshots` patterns, and serve versions with Option 1's Workers. Only landing-page hits then count toward the daily quota. A pattern without a trailing `*` doesn't match the same URL with a query string.
 
 ### Option 4: R2-backed
 
 **4a. R2 plus a Worker.**
-- *How it works.* A Worker script on `docs.plank.co/snapshots/*` reads `snapshots/13.x/…` objects from a bucket binding. The Worker has to handle index files, trailing slashes, content types and caching itself.
+- *How it works.* A Worker script on `packages.plank.co/snapshots/*` reads `snapshots/13.x/…` objects from a bucket binding. The Worker has to handle index files, trailing slashes, content types and caching itself.
 - *What one Major Line's release deploys.* Only its own prefix, via an S3-compatible sync (build-time tooling) or `wrangler r2 object put` per object. Each write is a Class A operation; deletes are free.
 - *How `/snapshots/` finds the newest.* A pointer object, or a `ListObjects` call (Class A).
 - *Free-plan limits touched.* Every page view is a Worker request (100k/day) plus at least one Class B operation (10M/month).
 - *Payment.* R2 subscription through checkout. Usage beyond the free tier is billed, whereas Workers Free returns errors when over its limit.
 
 **4b. R2 public bucket on a custom domain.**
-- *How it works.* The custom domain is a whole hostname, so `docs.plank.co` itself would be the bucket, holding every Package's prefix and the shell. Requests don't invoke Workers.
+- *How it works.* The custom domain is a whole hostname, so `packages.plank.co` itself would be the bucket, holding every Package's prefix and the shell. Requests don't invoke Workers.
 - *Index files.* The public-bucket docs describe no index document. A wildcard URL Rewrite Rule (10 per zone on free) could map `…/` to `…/index.html`.
 - *How `/snapshots/` finds the newest.* A Single Redirect (10 per zone, shared by every Package) or a Bulk Redirect list entry (10,000 per account), updated via API.
 - *Payment.* Same as 4a.
@@ -165,7 +165,7 @@ A Worker script serves files stored as KV keys. A release writes one key per fil
 
 ### Option 6: Pages
 
-Pages custom domains are hostnames, so a Pages project reaches a *path* of `docs.plank.co` only through a Worker in front (Option 3 with Pages as the origin). Pages Functions count against the same 100,000/day. Direct-upload deployments are complete sites, just like Worker versions. The account allows 100 Pages projects.
+Pages custom domains are hostnames, so a Pages project reaches a *path* of `packages.plank.co` only through a Worker in front (Option 3 with Pages as the origin). Pages Functions count against the same 100,000/day. Direct-upload deployments are complete sites, just like Worker versions. The account allows 100 Pages projects.
 
 ## Mechanisms for "`/snapshots/` → newest"
 
