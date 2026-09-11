@@ -5,7 +5,7 @@ Research for [plank/docs#2](https://github.com/plank/docs/issues/2), carried out
 The User-set constraints these costs are weighed against (from the map, [#1](https://github.com/plank/docs/issues/1)):
 
 - Package Docs are markdown and live in each Package's own repo.
-- Each Package's release workflow builds and deploys its own section of one Docs Site at `docs.plank.co/<package>`, using shared build tooling.
+- Each Package's release workflow builds and deploys its own section of one Docs Site at `packages.plank.co/<package>`, using shared build tooling.
 - There is one Docs Version per Major Line, e.g. `/snapshots/13.x`.
 - The Docs Site is a faithful extension of plank.co's design, "as much as possible without burdening ourselves".
 - Hosting is on Cloudflare, at $0 recurring cost, with no third-party runtime services.
@@ -226,7 +226,7 @@ Times include `npx` start-up. Every candidate's output is far below Cloudflare's
 - **Health:** v0.166.0 shipped 2026-09-09, with roughly monthly minor releases (2026-07-06, 08-12, 09-09) and patch releases between them. The lead maintainer is bep (5.8k commits), and the README lists sponsors. I found no maintenance-mode notice. Sources: `gh api repos/gohugoio/hugo/releases`, [github.com/gohugoio/hugo](https://github.com/gohugoio/hugo).
 - **Runtime:** a single Go binary. The `hugo-extended` npm package (node `>=18.17`) installed and ran it on Node 24 in the benchmark.
   - Hugo Modules need Go and Git. The docs disagree on the Go version: 1.18+ on [use modules](https://gohugo.io/hugo-modules/use-modules/), 1.27.0+ on [installation](https://gohugo.io/installation/macos/).
-- **Sub-path:** `baseURL` includes the path, e.g. `https://docs.plank.co/snapshots/13.x/`, and can be set per build with `--baseURL` ([config](https://gohugo.io/configuration/all/)).
+- **Sub-path:** `baseURL` includes the path, e.g. `https://packages.plank.co/snapshots/13.x/`, and can be set per build with `--baseURL` ([config](https://gohugo.io/configuration/all/)).
   - `relURL "/x"` resolves host-relative and drops the base path. The docs advise omitting the leading slash ([relURL](https://gohugo.io/functions/urls/relurl/)). Templates in the shared tooling must follow that.
 - **Markdown:**
   - Tables, footnotes and task lists work out of the box.
@@ -357,7 +357,7 @@ At the measured 33–118 files per 21-page Docs Version (Pagefind included where
 
 plank.co is a WordPress theme (`/wp-content/themes/plank/`). Its CSS and JS show:
 
-- **Fonts:** self-hosted `@font-face` for **Gascogne** (serif, weights 500/600) and **Untitled Sans** (400/500/500 italic), in WOFF2/WOFF/OTF. Whether the font licence covers another domain (`docs.plank.co`) is not checked here.
+- **Fonts:** self-hosted `@font-face` for **Gascogne** (serif, weights 500/600) and **Untitled Sans** (400/500/500 italic), in WOFF2/WOFF/OTF. Whether the font licence covers another domain (`packages.plank.co`) is not checked here.
 - **Palette** (the most frequent values): `#112621`, `#1f453b` (dark greens), `#fcfbfa`, `#f0ede8` (off-whites), `#ff9375` (coral), `#bfc9bd` (sage), `#fae370` (yellow).
 - **Dark mode and motion:** there is no `prefers-color-scheme: dark` rule. There are `prefers-reduced-motion` rules.
 - **Motion:** the bundled JS includes GSAP with ScrollTrigger and SplitText, plus Lottie, Swiper and Three.js.
@@ -386,7 +386,7 @@ Every candidate accepts arbitrary CSS and JS. They differ in how much of the chr
   - The Go version needed for Hugo Modules; the docs say 1.18+ in one place and 1.27.0+ in another.
   - Consuming a theme through npm plus module mounts, without Go.
 - **Zensical.** `INHERIT` support, the search index format, and any cross-site index merging.
-- **plank.co fonts.** Whether the Gascogne and Untitled Sans licences cover `docs.plank.co`.
+- **plank.co fonts.** Whether the Gascogne and Untitled Sans licences cover `packages.plank.co`.
 
 ## Sources
 
