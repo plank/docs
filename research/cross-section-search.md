@@ -7,8 +7,8 @@ This file records how each option behaves and what it costs. It does not pick on
 ## The setting (User-set constraints)
 
 - Package Docs are markdown, written in each Package's own repo.
-- Each Package's release workflow builds and deploys its own section of one Docs Site at `docs.plank.co/<package>`, using shared build tooling.
-- One Docs Version per Major Line, e.g. `docs.plank.co/snapshots/13.x/`.
+- Each Package's release workflow builds and deploys its own section of one Docs Site at `packages.plank.co/<package>`, using shared build tooling.
+- One Docs Version per Major Line, e.g. `packages.plank.co/snapshots/13.x/`.
 - Hosted on Cloudflare, $0 recurring cost, no third-party runtime services.
 
 Everything below assumes a Docs Version is built and deployed as a unit at `/<package>/<major-line>/`, and that a build-time search index for it can sit beside it (e.g. `/<package>/<major-line>/pagefind/`). Every section is served from the one hostname, so no option below needs CORS.
