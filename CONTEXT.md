@@ -17,7 +17,7 @@ One major version of a Package (e.g. `13.x`), maintained on its own branch. For 
 _Avoid_: Branch, release, version
 
 **Docs Version**:
-The Package Docs for one Major Line, as of that line's latest release. A Package's history on the Docs Site is its set of Docs Versions.
+The Package Docs for one Major Line, as of that line's latest release: its highest version, not counting prereleases. A Package's history on the Docs Site is its set of Docs Versions.
 _Avoid_: Snapshot, release docs
 
 **Docs Site**:
