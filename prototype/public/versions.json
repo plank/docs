@@ -1,0 +1,7 @@
+{
+	"_prototype": "Stand-in for the router run's /versions.json (ADR 0004). Only 13.x is built in this prototype; other Docs Versions 404.",
+	"packages": [
+		{ "repo": "publisher", "name": "Publisher", "majors": ["13.x", "12.x", "11.x", "10.x"] },
+		{ "repo": "snapshots", "name": "Snapshots", "majors": ["13.x", "12.x", "11.x", "10.x"] }
+	]
+}

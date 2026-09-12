@@ -1,0 +1,83 @@
+---
+// The build knows only its own Docs Version. Its siblings arrive from /versions.json at runtime
+// (ADR 0004); if that request fails, the reader sees just the current one.
+interface Props {
+	repo: string;
+	major: string;
+	mode: 'segmented' | 'select';
+}
+const { repo, major, mode } = Astro.props;
+---
+
+<plank-versions data-repo={repo} data-major={major} data-mode={mode}>
+	{
+		mode === 'segmented' ? (
+			<nav class="pv-seg" aria-label="Docs Versions">
+				<ul>
+					<li>
+						<a href={`/${repo}/${major}/`} aria-current="page">
+							{major}
+						</a>
+					</li>
+				</ul>
+			</nav>
+		) : (
+			<label class="pv-select">
+				<span class="sr-only">Docs Version</span>
+				<select>
+					<option value={major} selected>
+						{major}
+					</option>
+				</select>
+				<svg viewBox="0 0 16 16" aria-hidden="true">
+					<path d="m4 6 4 4 4-4" />
+				</svg>
+			</label>
+		)
+	}
+</plank-versions>
+
+<script>
+	class PlankVersions extends HTMLElement {
+		async connectedCallback() {
+			const { repo, major, mode } = this.dataset as Record<string, string>;
+			let majors: string[] | undefined;
+			try {
+				const res = await fetch('/versions.json');
+				const data = await res.json();
+				majors = data.packages.find((p: { repo: string }) => p.repo === repo)?.majors;
+			} catch {
+				return;
+			}
+			if (!majors?.length) return;
+			majors = [...majors].sort((a, b) => parseFloat(b) - parseFloat(a));
+			const newest = majors[0];
+			// Same page, other Docs Version.
+			const hrefFor = (m: string) =>
+				location.pathname.replace(`/${repo}/${major}/`, `/${repo}/${m}/`) + location.search;
+
+			if (mode === 'segmented') {
+				const ul = this.querySelector('ul')!;
+				ul.replaceChildren(
+					...majors.map((m) => {
+						const li = document.createElement('li');
+						const a = document.createElement('a');
+						a.href = hrefFor(m);
+						a.textContent = m;
+						if (m === major) a.setAttribute('aria-current', 'page');
+						if (m === newest) a.title = 'Latest';
+						li.append(a);
+						return li;
+					}),
+				);
+			} else {
+				const select = this.querySelector('select')!;
+				select.replaceChildren(
+					...majors.map((m) => new Option(m === newest ? `${m} (latest)` : m, m, m === major, m === major)),
+				);
+				select.addEventListener('change', () => (location.href = hrefFor(select.value)));
+			}
+		}
+	}
+	customElements.define('plank-versions', PlankVersions);
+</script>

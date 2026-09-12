@@ -1,0 +1,926 @@
+---
+// PROTOTYPE: three variants of the Docs Site's landing page, switchable via ?variant=A|B|C.
+// In the real Docs Site the router run builds this page from every Package's Docs Config (ADR 0004).
+import '@fontsource-variable/newsreader/opsz.css';
+import '@fontsource-variable/instrument-sans';
+import '../styles/tokens.css';
+import { Code } from 'astro:components';
+import VariantBoot from '../components/VariantBoot.astro';
+import PrototypeSwitcher from '../components/PrototypeSwitcher.astro';
+import Arrow from '../components/Arrow.astro';
+import Logo from '../assets/plank/logo.svg';
+import LogoWhite from '../assets/plank/logo-white.svg';
+import ShapeYellow from '../assets/plank/shape-1.svg';
+import ShapeCoral from '../assets/plank/shape-2.svg';
+import ShapeBlue from '../assets/plank/shape-3.svg';
+import Squiggle from '../assets/plank/squiggle.svg';
+import { packages, allMajors, newest } from '../data/packages';
+
+const shapes = { yellow: ShapeYellow, coral: ShapeCoral, blue: ShapeBlue };
+const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== newest(p));
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Plank Packages</title>
+		<meta name="description" content="Open-source Laravel packages from Plank, and their documentation." />
+		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+		<VariantBoot />
+	</head>
+	<body>
+		<!-- ==================== A · Major Line matrix ==================== -->
+		<div class="va" data-v="A">
+			<header class="top wrap">
+				<a href="/" class="brand">
+					<Logo class="brand-logo" aria-hidden="true" />
+					<span class="brand-site">Packages</span>
+					<span class="sr-only">Plank Packages</span>
+				</a>
+				<nav aria-label="Elsewhere">
+					<a class="plank-link" href="https://github.com/plank">GitHub</a>
+					<a class="plank-link" href="https://plank.co">plank.co</a>
+				</nav>
+			</header>
+
+			<main class="wrap va-main">
+				<ShapeYellow class="va-blob" aria-hidden="true" />
+				<div class="va-intro">
+					<h1>Laravel packages that move with Laravel.</h1>
+					<p>
+						Open-source packages from Plank. Each keeps a Major Line for every Laravel major it supports, and
+						every Major Line has its own docs.
+					</p>
+				</div>
+
+				<div class="va-scroll">
+					<table class="va-matrix">
+						<caption class="sr-only">Packages and the Major Lines they document</caption>
+						<thead>
+							<tr>
+								<th scope="col">Package</th>
+								{allMajors.map((m) => <th scope="col" class="va-col">{m}</th>)}
+							</tr>
+						</thead>
+						<tbody>
+							{
+								packages.map((p) => (
+									<tr>
+										<th scope="row">
+											<a class="va-name" href={`/${p.repo}/${newest(p)}/`}>
+												{p.name}
+											</a>
+											{p.status && <span class="pill">{p.status}</span>}
+											<p>{p.summary}</p>
+											<code>composer require {p.composer}</code>
+										</th>
+										{allMajors.map((m) => (
+											<td>
+												{p.majors.includes(m) ? (
+													<a
+														class:list={['va-cell', { 'is-newest': m === newest(p) }]}
+														href={`/${p.repo}/${m}/`}
+														aria-label={`${p.name} ${m} docs${m === newest(p) ? ', latest' : ''}`}
+													>
+														<span>{m}</span>
+														{m === newest(p) && <small>latest</small>}
+													</a>
+												) : (
+													<span class="va-none">Not documented</span>
+												)}
+											</td>
+										))}
+									</tr>
+								))
+							}
+						</tbody>
+					</table>
+				</div>
+			</main>
+
+			<footer class="foot wrap">
+				Made by <a class="plank-link" href="https://plank.co">Plank</a>. Every Package here is open source on{" "}
+				<a class="plank-link" href="https://github.com/plank">GitHub</a>.
+			</footer>
+		</div>
+
+		<!-- ==================== B · composer require ==================== -->
+		<div class="vb" data-v="B">
+			<section class="vb-band">
+				<ShapeBlue class="vb-shape" aria-hidden="true" />
+				<header class="top wrap">
+					<a href="/" class="brand">
+						<LogoWhite class="brand-logo" aria-hidden="true" />
+						<span class="brand-site">Packages</span>
+						<span class="sr-only">Plank Packages</span>
+					</a>
+					<nav aria-label="Elsewhere">
+						<a class="plank-link" href="https://github.com/plank">GitHub</a>
+						<a class="plank-link" href="https://plank.co">plank.co</a>
+					</nav>
+				</header>
+				<div class="wrap vb-hero">
+					<h1>Open-source Laravel packages from Plank.</h1>
+					<div class="vb-cmd">
+						<code
+							><span class="vb-prompt" aria-hidden="true">$</span>composer require <span class="vb-nowrap"
+								>plank/<span class="vb-pkg">{packages[0].repo}</span><span class="vb-caret" aria-hidden="true"
+								></span></span
+							></code
+						>
+						<button type="button" class="vb-copy">Copy</button>
+					</div>
+					<div class="vb-tabs" role="tablist" aria-label="Packages">
+						{
+							packages.map((p, i) => (
+								<button
+									type="button"
+									role="tab"
+									id={`vb-tab-${p.repo}`}
+									aria-controls={`vb-panel-${p.repo}`}
+									aria-selected={i === 0 ? 'true' : 'false'}
+									tabindex={i === 0 ? 0 : -1}
+									data-repo={p.repo}
+								>
+									{p.name}
+								</button>
+							))
+						}
+					</div>
+				</div>
+			</section>
+
+			<main class="wrap vb-panels">
+				{
+					packages.map((p, i) => (
+						<section
+							class="vb-panel"
+							role="tabpanel"
+							id={`vb-panel-${p.repo}`}
+							aria-labelledby={`vb-tab-${p.repo}`}
+							hidden={i !== 0}
+						>
+							<div>
+								<h2>
+									{p.name}
+									{p.status && <span class="pill">{p.status}</span>}
+								</h2>
+								<p class="vb-summary">{p.summary}</p>
+								<a class="plank-button" href={`/${p.repo}/${newest(p)}/`}>
+									<span>Read the {newest(p)} docs</span>
+									<Arrow />
+								</a>
+								<p class="vb-older">
+									Older Major Lines:{' '}
+									{older(p).map((m, j) => (
+										<>
+											<a class="plank-link" href={`/${p.repo}/${m}/`}>
+												{m}
+											</a>
+											{j < older(p).length - 1 ? ', ' : ''}
+										</>
+									))}
+								</p>
+							</div>
+							<figure class="sample vb-sample">
+								<figcaption>{p.sampleLabel}</figcaption>
+								<Code code={p.sample} lang="php" theme="vitesse-light" />
+							</figure>
+						</section>
+					))
+				}
+			</main>
+
+			<footer class="foot wrap">
+				Made by <a class="plank-link" href="https://plank.co">Plank</a>. Every Package here is open source on{" "}
+				<a class="plank-link" href="https://github.com/plank">GitHub</a>.
+			</footer>
+		</div>
+
+		<!-- ==================== C · plank.co editorial ==================== -->
+		<div class="vc" data-v="C">
+			<header class="top wrap">
+				<a href="/" class="brand">
+					<Logo class="vc-logo" aria-hidden="true" />
+					<span class="sr-only">Plank Packages</span>
+				</a>
+				<nav aria-label="Elsewhere">
+					<a class="plank-link" href="https://github.com/plank">GitHub</a>
+					<a class="plank-link" href="https://plank.co">plank.co</a>
+				</nav>
+			</header>
+
+			<main>
+				<section class="vc-hero wrap">
+					<h1>
+						<span class="vc-mark"
+							>Open-source<Squiggle class="vc-squiggle" aria-hidden="true" preserveAspectRatio="none" /></span
+						> Laravel packages, made at Plank.
+					</h1>
+					<p>Free to use, built for Laravel, and documented here for every Major Line.</p>
+					<a class="plank-button" href="#packages"><span>See the packages</span><Arrow /></a>
+				</section>
+
+				<section id="packages" class="vc-list wrap" aria-label="Packages">
+					{
+						packages.map((p) => {
+							const Shape = shapes[p.shape];
+							return (
+								<article class="vc-pkg">
+									<a class="vc-figure" href={`/${p.repo}/${newest(p)}/`} tabindex="-1" aria-hidden="true">
+										<Shape class="vc-shape" />
+										<span class="vc-figname">{p.name}</span>
+									</a>
+									<div class="vc-body">
+										<h2>{p.tagline}</h2>
+										{p.status && <span class="pill">{p.status}</span>}
+										<p class="vc-summary">{p.summary}</p>
+										<figure class="sample">
+											<figcaption>{p.sampleLabel}</figcaption>
+											<Code code={p.sample} lang="php" theme="vitesse-light" />
+										</figure>
+										<div class="vc-links">
+											<a class="link-arrow" href={`/${p.repo}/${newest(p)}/`}>
+												Read the {p.name} {newest(p)} docs <Arrow />
+											</a>
+											<span>
+												Also{' '}
+												{older(p).map((m, j) => (
+													<>
+														<a class="plank-link" href={`/${p.repo}/${m}/`}>
+															{m}
+														</a>
+														{j < older(p).length - 1 ? ', ' : ''}
+													</>
+												))}
+											</span>
+										</div>
+									</div>
+								</article>
+							);
+						})
+					}
+				</section>
+			</main>
+
+			<footer class="vc-foot">
+				<div class="wrap">
+					Made by <a class="plank-link" href="https://plank.co">Plank</a>. Every Package here is open source on{" "}
+					<a class="plank-link" href="https://github.com/plank">GitHub</a>.
+				</div>
+			</footer>
+		</div>
+
+		<PrototypeSwitcher />
+
+		<script>
+			// B: the command types each Package's name in turn, like plank.co's rotating hero phrase.
+			const root = document.querySelector<HTMLElement>('.vb');
+			if (root) {
+				const pkgEl = root.querySelector<HTMLElement>('.vb-pkg')!;
+				const tabs = [...root.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+				const panels = [...root.querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+				const copy = root.querySelector<HTMLButtonElement>('.vb-copy')!;
+				const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+				const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+				let current = tabs[0].dataset.repo!;
+				let auto = !reduce;
+				let typing = Promise.resolve();
+
+				const select = (repo: string, focus = false) => {
+					current = repo;
+					tabs.forEach((t) => {
+						const on = t.dataset.repo === repo;
+						t.setAttribute('aria-selected', String(on));
+						t.tabIndex = on ? 0 : -1;
+						if (on && focus) t.focus();
+					});
+					panels.forEach((p) => (p.hidden = p.id !== `vb-panel-${repo}`));
+				};
+				const typeTo = async (repo: string) => {
+					if (reduce) return void (pkgEl.textContent = repo);
+					while (pkgEl.textContent!.length) {
+						pkgEl.textContent = pkgEl.textContent!.slice(0, -1);
+						await sleep(40);
+					}
+					for (const ch of repo) {
+						pkgEl.textContent += ch;
+						await sleep(80);
+					}
+				};
+				const choose = (repo: string, focus = false) => {
+					select(repo, focus);
+					typing = typing.then(() => typeTo(repo));
+				};
+
+				tabs.forEach((t) =>
+					t.addEventListener('click', () => {
+						auto = false;
+						choose(t.dataset.repo!);
+					}),
+				);
+				root.querySelector('[role="tablist"]')!.addEventListener('keydown', (e) => {
+					const ke = e as KeyboardEvent;
+					if (ke.key !== 'ArrowLeft' && ke.key !== 'ArrowRight') return;
+					ke.stopPropagation();
+					auto = false;
+					const i = tabs.findIndex((t) => t.dataset.repo === current);
+					const next = tabs[(i + (ke.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+					choose(next.dataset.repo!, true);
+				});
+				copy.addEventListener('click', async () => {
+					await navigator.clipboard.writeText(`composer require plank/${current}`);
+					copy.textContent = 'Copied';
+					setTimeout(() => (copy.textContent = 'Copy'), 1600);
+				});
+
+				(async () => {
+					while (auto) {
+						await sleep(4200);
+						if (!auto) break;
+						const i = tabs.findIndex((t) => t.dataset.repo === current);
+						choose(tabs[(i + 1) % tabs.length].dataset.repo!);
+					}
+				})();
+			}
+		</script>
+
+		<style>
+			body {
+				margin: 0;
+				background: var(--plank-paper);
+				color: var(--plank-ink);
+				font: 400 1.0625rem/1.75 var(--font-body);
+				letter-spacing: -0.01em;
+				-webkit-font-smoothing: antialiased;
+				overflow-x: hidden;
+			}
+			h1,
+			h2 {
+				margin: 0;
+				font-family: var(--font-display);
+				font-weight: 600;
+				letter-spacing: -0.015em;
+				text-wrap: balance;
+			}
+			p {
+				margin: 0;
+			}
+			.wrap {
+				max-width: 1440px;
+				margin-inline: auto;
+				padding-inline: clamp(1.25rem, 4vw, 3.5rem);
+				box-sizing: border-box;
+			}
+
+			/* shared top bar */
+			.top {
+				position: relative;
+				z-index: 2;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				gap: 1rem;
+				padding-block: 1.75rem;
+			}
+			.brand {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.8rem;
+				color: inherit;
+				text-decoration: none;
+			}
+			.brand-logo {
+				height: 2.3rem;
+				width: auto;
+			}
+			.brand-site {
+				padding-left: 0.8rem;
+				border-left: 1px solid var(--plank-rule);
+				font-weight: 500;
+				line-height: 1.3;
+				color: var(--plank-ink-soft);
+			}
+			.top nav {
+				display: flex;
+				gap: 1.5rem;
+				font-weight: 500;
+			}
+			.pill {
+				display: inline-block;
+				margin-left: 0.75rem;
+				padding: 0.15rem 0.6rem;
+				border-radius: 999px;
+				background: var(--plank-yellow);
+				color: var(--plank-ink);
+				font: 500 0.75rem/1.5 var(--font-body);
+				letter-spacing: 0;
+				vertical-align: middle;
+				white-space: nowrap;
+			}
+			.foot {
+				padding-block: 2.5rem 6rem;
+				border-top: 1px solid var(--plank-rule);
+				color: var(--plank-ink-soft);
+				font-size: 0.95rem;
+			}
+			.sample {
+				margin: 0;
+				padding: 1.25rem 1.5rem 1.4rem;
+				border-radius: var(--radius);
+				background: var(--plank-sand);
+			}
+			.sample figcaption {
+				margin-bottom: 0.6rem;
+				font: 500 0.78rem/1.4 var(--font-body);
+				letter-spacing: 0.06em;
+				text-transform: uppercase;
+				color: var(--plank-ink-soft);
+			}
+			.sample :global(pre) {
+				margin: 0;
+				background: transparent !important;
+				font: 0.92rem/1.7 var(--font-code);
+				overflow-x: auto;
+			}
+			.plank-button :global(.arrow),
+			.link-arrow :global(.arrow) {
+				fill: none;
+				stroke: currentColor;
+				stroke-width: 1.5;
+				stroke-linecap: round;
+				stroke-linejoin: round;
+			}
+
+			/* ---------- A ---------- */
+			.va-main {
+				position: relative;
+				padding-block: clamp(3rem, 8vw, 6.5rem) 5rem;
+			}
+			.va-blob {
+				position: absolute;
+				z-index: 0;
+				top: -2rem;
+				right: clamp(-6rem, -4vw, -1rem);
+				width: clamp(15rem, 34vw, 31rem);
+				height: auto;
+				rotate: 9deg;
+			}
+			.va-intro {
+				position: relative;
+				z-index: 1;
+				max-width: 50rem;
+			}
+			.va-intro h1 {
+				font-size: clamp(2.75rem, 6.4vw, 5.75rem);
+				line-height: 1.02;
+				letter-spacing: -0.028em;
+			}
+			.va-intro p {
+				max-width: 36rem;
+				margin-top: 1.5rem;
+				font-size: 1.25rem;
+				line-height: 1.6;
+				color: var(--plank-ink-soft);
+			}
+			.va-scroll {
+				position: relative;
+				z-index: 1;
+				margin-top: clamp(3.5rem, 7vw, 6rem);
+			}
+			.va-matrix {
+				width: 100%;
+				border-collapse: collapse;
+			}
+			.va-matrix thead th {
+				padding: 0 0.75rem 0.9rem 0;
+				border-bottom: 3px solid var(--plank-ink);
+				text-align: left;
+				font: 500 0.8rem/1.4 var(--font-body);
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: var(--plank-ink-soft);
+			}
+			.va-matrix thead th.va-col {
+				width: 8rem;
+				padding-right: 0;
+				text-align: center;
+			}
+			.va-matrix tbody tr {
+				border-bottom: 1px solid var(--plank-rule);
+			}
+			.va-matrix tbody th {
+				padding: 2.25rem 2rem 2.25rem 0;
+				text-align: left;
+				font-weight: 400;
+				vertical-align: top;
+			}
+			.va-name {
+				color: var(--plank-ink);
+				text-decoration: none;
+				font: 600 clamp(2rem, 3.4vw, 2.9rem)/1.05 var(--font-display);
+				letter-spacing: -0.02em;
+				background: linear-gradient(var(--plank-coral), var(--plank-coral)) no-repeat left 88% / 0 0.32em;
+				transition: background-size 0.4s var(--ease-out);
+			}
+			.va-name:hover {
+				background-size: 100% 0.32em;
+			}
+			.va-matrix tbody th p {
+				max-width: 38rem;
+				margin-top: 0.7rem;
+				color: var(--plank-ink-soft);
+			}
+			.va-matrix tbody th code {
+				display: inline-block;
+				margin-top: 1rem;
+				padding: 0.3rem 0.6rem;
+				border-radius: 6px;
+				background: var(--plank-sand);
+				font: 0.85rem/1.5 var(--font-code);
+			}
+			.va-matrix td {
+				padding: 1rem 0.4rem;
+				text-align: center;
+				vertical-align: middle;
+			}
+			.va-cell {
+				display: inline-grid;
+				place-items: center;
+				align-content: center;
+				width: 6.75rem;
+				height: 4.75rem;
+				border: 1.5px solid var(--plank-ink);
+				border-radius: var(--radius);
+				color: var(--plank-ink);
+				text-decoration: none;
+				font: 600 1.4rem/1.1 var(--font-display);
+				font-variant-numeric: tabular-nums;
+				transition:
+					background-color 0.2s,
+					rotate 0.35s var(--ease-out);
+			}
+			.va-cell:hover {
+				background: var(--plank-mist);
+				rotate: -3deg;
+			}
+			.va-cell.is-newest {
+				border-color: transparent;
+				border-radius: 0;
+				background: var(--plank-coral);
+				clip-path: var(--wobble);
+			}
+			.va-cell small {
+				font: 500 0.66rem/1.4 var(--font-body);
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+			}
+			.va-none {
+				font-size: 0.8rem;
+				color: var(--plank-ink-soft);
+			}
+			@media (max-width: 48rem) {
+				.va-matrix,
+				.va-matrix tbody,
+				.va-matrix tr {
+					display: block;
+				}
+				.va-matrix thead {
+					position: absolute;
+					width: 1px;
+					height: 1px;
+					overflow: hidden;
+					clip-path: inset(50%);
+				}
+				.va-matrix tbody tr:first-child {
+					border-top: 3px solid var(--plank-ink);
+				}
+				.va-matrix tbody th {
+					display: block;
+					padding: 2rem 0 1.25rem;
+				}
+				.va-matrix td {
+					display: inline-block;
+					padding: 0 0.4rem 1.75rem 0;
+				}
+				.va-cell {
+					width: 4.75rem;
+					height: 3.75rem;
+					font-size: 1.15rem;
+				}
+				.va-matrix td:has(.va-none) {
+					display: none;
+				}
+			}
+
+			/* ---------- B ---------- */
+			.vb-band {
+				position: relative;
+				overflow: hidden;
+				padding-bottom: clamp(3rem, 7vw, 5.5rem);
+				background: var(--plank-forest);
+				color: var(--plank-paper);
+			}
+			.vb-shape {
+				position: absolute;
+				right: clamp(-10rem, -7vw, -5rem);
+				bottom: clamp(-17rem, -14vw, -8rem);
+				width: clamp(16rem, 28vw, 26rem);
+				height: auto;
+				rotate: -14deg;
+			}
+			.vb-band .brand-site {
+				color: var(--plank-sage);
+				border-color: rgb(255 255 255 / 0.25);
+			}
+			.vb-hero {
+				position: relative;
+				padding-top: clamp(2.5rem, 8vw, 6rem);
+			}
+			.vb-hero h1 {
+				font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+				font-weight: 500;
+				color: var(--plank-mist);
+			}
+			.vb-cmd {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: 1rem 1.75rem;
+				margin-top: 1.25rem;
+			}
+			.vb-cmd code {
+				font: 500 clamp(1.3rem, 4.1vw, 3.6rem)/1.15 var(--font-code);
+				letter-spacing: -0.035em;
+				color: var(--plank-paper);
+			}
+			.vb-nowrap {
+				white-space: nowrap;
+			}
+			.vb-prompt {
+				margin-right: 0.45em;
+				color: var(--plank-sage);
+			}
+			.vb-pkg {
+				color: var(--plank-coral);
+			}
+			.vb-caret {
+				display: inline-block;
+				width: 0.55em;
+				height: 1em;
+				margin-left: 0.06em;
+				vertical-align: -0.14em;
+				background: var(--plank-coral);
+			}
+			@media (prefers-reduced-motion: no-preference) {
+				.vb-caret {
+					animation: blink 1.1s steps(1) infinite;
+				}
+			}
+			@keyframes blink {
+				50% {
+					opacity: 0;
+				}
+			}
+			.vb-copy {
+				padding: 0.75rem 1.1rem;
+				border: 1.5px solid rgb(255 255 255 / 0.35);
+				border-radius: var(--radius);
+				background: transparent;
+				color: var(--plank-paper);
+				font: 500 0.85rem/1 var(--font-body);
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				cursor: pointer;
+				transition: border-color 0.2s;
+			}
+			.vb-copy:hover {
+				border-color: var(--plank-paper);
+			}
+			.vb-tabs {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem 2rem;
+				margin-top: 2.5rem;
+			}
+			.vb-tabs button {
+				padding: 0.3rem 0;
+				border: 0;
+				background: linear-gradient(var(--plank-coral), var(--plank-coral)) no-repeat left bottom / 0 2px;
+				color: var(--plank-sage);
+				font: 600 1.35rem/1.3 var(--font-display);
+				cursor: pointer;
+				transition:
+					background-size 0.35s var(--ease-out),
+					color 0.2s;
+			}
+			.vb-tabs button:hover,
+			.vb-tabs button[aria-selected='true'] {
+				background-size: 100% 2px;
+				color: var(--plank-paper);
+			}
+			.vb-panels {
+				padding-block: clamp(3rem, 7vw, 5.5rem);
+			}
+			.vb-panel {
+				display: grid;
+				grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+				gap: clamp(2rem, 5vw, 5rem);
+				align-items: start;
+			}
+			.vb-panel[hidden] {
+				display: none;
+			}
+			.vb-panel h2 {
+				font-size: clamp(2.5rem, 4.6vw, 3.9rem);
+				line-height: 1.05;
+			}
+			.vb-summary {
+				max-width: 34rem;
+				margin: 1.25rem 0 2.25rem;
+				font-size: 1.15rem;
+				color: var(--plank-ink-soft);
+			}
+			.vb-older {
+				margin-top: 1.5rem;
+				font-size: 0.95rem;
+				color: var(--plank-ink-soft);
+			}
+			.vb-sample {
+				rotate: 1.5deg;
+				margin-top: 0.5rem;
+			}
+			@media (max-width: 52rem) {
+				.vb-panel {
+					grid-template-columns: 1fr;
+				}
+				.vb-sample {
+					rotate: 0deg;
+				}
+			}
+
+			/* ---------- C ---------- */
+			.vc-logo {
+				height: clamp(2.6rem, 4vw, 3.5rem);
+				width: auto;
+			}
+			.vc-hero {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				padding-block: clamp(4rem, 12vw, 9rem) clamp(4.5rem, 10vw, 8rem);
+				text-align: center;
+			}
+			.vc-hero h1 {
+				max-width: 20ch;
+				font-size: clamp(2.8rem, 6.6vw, 6rem);
+				line-height: 1.04;
+				letter-spacing: -0.028em;
+			}
+			.vc-mark {
+				position: relative;
+				white-space: nowrap;
+			}
+			.vc-squiggle {
+				position: absolute;
+				left: 0;
+				bottom: -0.16em;
+				width: 100%;
+				height: 0.26em;
+				overflow: visible;
+			}
+			.vc-squiggle :global(path) {
+				vector-effect: non-scaling-stroke;
+				stroke-width: 4px;
+			}
+			@media (prefers-reduced-motion: no-preference) {
+				.vc-squiggle :global(path) {
+					stroke-dasharray: 1;
+					stroke-dashoffset: 1;
+					animation: draw 1.3s 0.35s var(--ease-out) forwards;
+				}
+			}
+			@keyframes draw {
+				to {
+					stroke-dashoffset: 0;
+				}
+			}
+			.vc-hero p {
+				max-width: 34rem;
+				margin: 2.25rem 0 2.75rem;
+				font-size: clamp(1.15rem, 1.6vw, 1.35rem);
+				color: var(--plank-ink-soft);
+			}
+			.vc-list {
+				display: flex;
+				flex-direction: column;
+				gap: clamp(5rem, 11vw, 9rem);
+				padding-bottom: clamp(5rem, 11vw, 9rem);
+			}
+			.vc-pkg {
+				display: grid;
+				grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+				gap: clamp(2rem, 6vw, 6rem);
+				align-items: center;
+			}
+			.vc-pkg:nth-child(even) .vc-figure {
+				order: 2;
+			}
+			.vc-figure {
+				position: relative;
+				display: grid;
+				place-items: center;
+				aspect-ratio: 1.1;
+				color: var(--plank-ink);
+				text-decoration: none;
+			}
+			.vc-shape {
+				position: absolute;
+				inset: 0;
+				width: 100%;
+				height: 100%;
+				rotate: -6deg;
+				transition: rotate 0.7s var(--ease-out);
+			}
+			.vc-pkg:nth-child(even) .vc-shape {
+				rotate: 7deg;
+			}
+			.vc-figure:hover .vc-shape {
+				rotate: 0deg;
+			}
+			.vc-figname {
+				position: relative;
+				rotate: -4deg;
+				font: 600 clamp(2.6rem, 5.6vw, 5rem)/1 var(--font-display);
+				letter-spacing: -0.025em;
+			}
+			.vc-body h2 {
+				display: inline;
+				font-size: clamp(2rem, 3.3vw, 2.9rem);
+				line-height: 1.1;
+			}
+			.vc-summary {
+				max-width: 36rem;
+				margin: 1.25rem 0 1.75rem;
+				font-size: 1.15rem;
+				color: var(--plank-ink-soft);
+			}
+			.vc-links {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: 0.75rem 2rem;
+				margin-top: 1.75rem;
+				font-size: 0.95rem;
+				color: var(--plank-ink-soft);
+			}
+			.link-arrow {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.7rem;
+				color: var(--plank-ink);
+				text-decoration: none;
+				font: 500 0.88rem/1.3 var(--font-body);
+				letter-spacing: 0.1em;
+				text-transform: uppercase;
+			}
+			.link-arrow :global(.arrow) {
+				width: 2.5rem;
+				height: 0.9rem;
+				transition: translate 0.25s var(--ease-out);
+			}
+			.link-arrow:hover :global(.arrow) {
+				translate: 0.6rem 0;
+			}
+			.vc-foot {
+				padding-block: 2.75rem 6rem;
+				background: var(--plank-sand);
+				color: var(--plank-ink-soft);
+				font-size: 0.95rem;
+			}
+			@media (max-width: 52rem) {
+				.vc-pkg {
+					grid-template-columns: 1fr;
+				}
+				.vc-pkg:nth-child(even) .vc-figure {
+					order: 0;
+				}
+				.vc-figure {
+					width: 100%;
+					max-width: 22rem;
+					margin-inline: auto;
+				}
+			}
+			@media (max-width: 30rem) {
+				.top nav {
+					gap: 1rem;
+					font-size: 0.95rem;
+				}
+				.brand-site {
+					display: none;
+				}
+			}
+		</style>
+	</body>
+</html>

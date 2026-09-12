@@ -1,0 +1,42 @@
+---
+import Default from '@astrojs/starlight/components/Sidebar.astro';
+import VersionSwitcher from './VersionSwitcher.astro';
+import { packages } from '../data/packages';
+
+const [, repo, major] = Astro.url.pathname.split('/');
+const pkg = packages.find((p) => p.repo === repo);
+---
+
+{
+	pkg && (
+		<div class="ps">
+			<div data-v="A" class="ps-a md:sl-hidden">
+				<VersionSwitcher repo={repo} major={major} mode="segmented" />
+			</div>
+			<div data-v="B" class="ps-b">
+				<div class="ps-cmd">
+					<code>composer require {pkg.composer}</code>
+					<button type="button" class="ps-copy" data-copy={`composer require ${pkg.composer}`}>
+						Copy
+					</button>
+				</div>
+				<VersionSwitcher repo={repo} major={major} mode="select" />
+			</div>
+			<div data-v="C" class="ps-c">
+				<p class="ps-c-name">{pkg.name}</p>
+				<VersionSwitcher repo={repo} major={major} mode="select" />
+			</div>
+		</div>
+	)
+}
+<Default />
+
+<script>
+	document.querySelectorAll<HTMLButtonElement>('.ps-copy').forEach((b) =>
+		b.addEventListener('click', async () => {
+			await navigator.clipboard.writeText(b.dataset.copy ?? '');
+			b.textContent = 'Copied';
+			setTimeout(() => (b.textContent = 'Copy'), 1600);
+		}),
+	);
+</script>

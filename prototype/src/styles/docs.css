@@ -1,0 +1,316 @@
+/* PROTOTYPE: Starlight restyled toward plank.co. Shared by every variant, then per-variant chrome. */
+
+/* ---------- Theme ---------- */
+:root {
+	--sl-font: var(--font-body);
+	--sl-font-mono: var(--font-code);
+	--sl-content-width: 45rem; /* plank.co's 720px text measure */
+	--sl-line-height: 1.75;
+	--sl-text-h1: 2.75rem;
+	--sl-text-h2: 2rem;
+	--sl-text-h3: 1.5rem;
+	--sl-text-h4: 1.2rem;
+
+	/* Dark: plank.co has no dark palette, so this one is built from its forest greens. */
+	--sl-color-accent-low: #3b2a24;
+	--sl-color-accent: #ff9375;
+	--sl-color-accent-high: #ffd3c6;
+	--sl-color-white: #fcfbfa;
+	--sl-color-gray-1: #eef1ed;
+	--sl-color-gray-2: #d5dbd3;
+	--sl-color-gray-3: #aebdb7;
+	--sl-color-gray-4: #7c948d;
+	--sl-color-gray-5: #3a5a52;
+	--sl-color-gray-6: #1d3832;
+	--sl-color-black: #112621;
+}
+:root[data-theme='light'],
+[data-theme='light'] ::backdrop {
+	--sl-color-accent-low: #d5dbd3;
+	--sl-color-accent: #1f453b;
+	--sl-color-accent-high: #112621;
+	--sl-color-white: #112621;
+	--sl-color-gray-1: #1c3530;
+	--sl-color-gray-2: #2e433e;
+	--sl-color-gray-3: #4f5c58;
+	--sl-color-gray-4: #7d8580;
+	--sl-color-gray-5: #d8d8d8;
+	--sl-color-gray-6: #ededed;
+	--sl-color-gray-7: #f6f4f1;
+	--sl-color-black: #fcfbfa;
+}
+
+/* ---------- Content ---------- */
+.sl-markdown-content :is(h1, h2, h3, h4, h5, h6),
+h1#_top {
+	font-family: var(--font-display);
+	font-weight: 600;
+	letter-spacing: -0.012em;
+	text-wrap: balance;
+}
+h1#_top {
+	letter-spacing: -0.02em;
+	line-height: 1.08;
+}
+
+.sl-markdown-content a:not(:where(.not-content *)) {
+	color: var(--sl-color-white);
+	text-decoration: none;
+	background: linear-gradient(var(--plank-coral), var(--plank-coral)) no-repeat left bottom / 100% 2px;
+	transition: background-size 0.3s var(--ease-out), color 0.3s;
+}
+.sl-markdown-content a:not(:where(.not-content *)):hover {
+	background-size: 100% 100%;
+	color: var(--plank-ink);
+}
+
+.sl-markdown-content :not(pre) > code {
+	background: var(--sl-color-gray-6);
+	border: 0;
+	border-radius: 6px;
+	padding: 0.1em 0.35em;
+}
+
+.sl-markdown-content blockquote {
+	border: 0;
+	border-radius: var(--radius);
+	background: var(--plank-sand);
+	color: var(--plank-ink);
+	padding: 1rem 1.25rem;
+}
+:root:not([data-theme='light']) .sl-markdown-content blockquote {
+	background: var(--sl-color-gray-6);
+	color: var(--sl-color-gray-1);
+}
+
+.sl-markdown-content :is(th, td) {
+	border: 0;
+	border-bottom: 1px solid var(--sl-color-gray-5);
+	background: none;
+}
+.sl-markdown-content thead th {
+	border-bottom: 2px solid var(--sl-color-white);
+	font-weight: 600;
+}
+.sl-markdown-content td {
+	font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Header pieces, all variants ---------- */
+.ph-home {
+	display: flex;
+	align-items: center;
+	gap: 0.7rem;
+	color: var(--sl-color-white);
+	text-decoration: none;
+	flex-shrink: 0;
+}
+.ph-logo {
+	height: 1.55rem;
+	width: auto;
+}
+.ph-logo-white {
+	display: none;
+}
+:root:not([data-theme='light']) .ph-logo-ink {
+	display: none;
+}
+:root:not([data-theme='light']) .ph-logo-white {
+	display: block;
+}
+.ph-site {
+	font: 500 0.95rem/1 var(--font-body);
+	color: var(--sl-color-gray-3);
+	padding-left: 0.7rem;
+	border-left: 1px solid var(--sl-color-gray-5);
+}
+.ph-slash {
+	color: var(--sl-color-gray-4);
+}
+.ph-pkg {
+	font: 600 1.2rem/1 var(--font-display);
+	color: var(--sl-color-white);
+	text-decoration: none;
+	white-space: nowrap;
+}
+.ph-gh {
+	color: var(--sl-color-gray-2);
+	display: flex;
+}
+
+/* Version switcher: segmented (A) */
+.pv-seg ul {
+	display: flex;
+	gap: 0.15rem;
+	list-style: none;
+	margin: 0;
+	padding: 0.2rem;
+	border: 1px solid var(--sl-color-gray-5);
+	border-radius: var(--radius);
+}
+.pv-seg a {
+	display: block;
+	padding: 0.2rem 0.55rem;
+	border-radius: 7px;
+	font: 500 0.85rem/1.4 var(--font-body);
+	font-variant-numeric: tabular-nums;
+	color: var(--sl-color-gray-3);
+	text-decoration: none;
+	transition: background-color 0.2s, color 0.2s;
+}
+.pv-seg a:hover {
+	background: var(--sl-color-gray-6);
+	color: var(--sl-color-white);
+}
+.pv-seg a[aria-current='page'] {
+	background: var(--plank-coral);
+	color: var(--plank-ink);
+}
+
+/* Version switcher: select (B, C) */
+.pv-select {
+	position: relative;
+	display: block;
+}
+.pv-select select {
+	appearance: none;
+	width: 100%;
+	padding: 0.5rem 2.25rem 0.5rem 0.8rem;
+	border: 1px solid var(--sl-color-gray-5);
+	border-radius: var(--radius);
+	background: var(--sl-color-black);
+	color: var(--sl-color-white);
+	font: 500 0.9rem/1.4 var(--font-body);
+	font-variant-numeric: tabular-nums;
+	cursor: pointer;
+}
+.pv-select svg {
+	position: absolute;
+	right: 0.7rem;
+	top: 50%;
+	translate: 0 -50%;
+	width: 1rem;
+	height: 1rem;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.75;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	pointer-events: none;
+}
+
+.ps {
+	margin-bottom: 1.25rem;
+}
+
+/* ---------- A · Major Line matrix ---------- */
+html[data-variant='A'] .ph-versions {
+	margin-left: 0.5rem;
+}
+@media (max-width: 50rem) {
+	html[data-variant='A'] .ph-versions {
+		display: none;
+	}
+}
+
+/* ---------- B · composer require ---------- */
+html[data-variant='B'] {
+	--sl-color-bg-nav: var(--plank-forest);
+	--sl-color-hairline-shade: var(--plank-forest-deep);
+}
+html[data-variant='B'] header.header :is(.ph-home, .ph-pkg, .ph-gh) {
+	color: var(--plank-paper);
+}
+html[data-variant='B'] header.header .ph-logo-ink {
+	display: none;
+}
+html[data-variant='B'] header.header .ph-logo-white {
+	display: block;
+}
+html[data-variant='B'] header.header :is(.ph-site, .ph-slash) {
+	color: var(--plank-sage);
+	border-color: rgb(255 255 255 / 0.25);
+}
+html[data-variant='B'] header.header site-search button[data-open-modal] {
+	background: rgb(255 255 255 / 0.08);
+	border-color: rgb(255 255 255 / 0.22);
+	color: var(--plank-mist);
+}
+html[data-variant='B'] header.header starlight-theme-select {
+	color: var(--plank-mist);
+	--sl-color-gray-1: var(--plank-paper);
+	--sl-color-gray-2: var(--plank-mist);
+}
+html[data-variant='B'] .sidebar-pane,
+html[data-variant='B'] header.header ~ * .sidebar-pane {
+	border-inline-end-color: var(--sl-color-gray-6);
+}
+.ps-b,
+.ps-c {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 0.6rem;
+}
+.ps-cmd {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	padding: 0.5rem 0.5rem 0.5rem 0.8rem;
+	border-radius: var(--radius);
+	background: var(--plank-forest);
+	color: var(--plank-paper);
+}
+.ps-cmd code {
+	min-width: 0;
+	padding: 0;
+	background: none;
+	color: inherit;
+	font: 0.78rem/1.3 var(--font-code);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.ps-copy {
+	flex-shrink: 0;
+	padding: 0.35rem 0.6rem;
+	border: 0;
+	border-radius: 7px;
+	background: var(--plank-coral);
+	color: var(--plank-ink);
+	font: 500 0.72rem/1 var(--font-body);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	cursor: pointer;
+}
+
+/* ---------- C · plank.co editorial ---------- */
+html[data-variant='C'] {
+	--sl-nav-height: 4.75rem;
+	--sl-text-h1: 3.4rem;
+}
+html[data-variant='C'] .ph-logo {
+	height: 2.3rem;
+}
+html[data-variant='C'] .ph-site,
+html[data-variant='C'] .ph-slash,
+html[data-variant='C'] .ph-pkg {
+	display: none;
+}
+html[data-variant='C'] h1#_top::after {
+	content: '';
+	display: block;
+	width: 10rem;
+	height: 1.4rem;
+	margin-top: 0.6rem;
+	background: url('/squiggle-coral.svg') no-repeat left center / contain;
+}
+html[data-variant='C'] .sl-markdown-content h2 {
+	margin-top: 2.5em;
+}
+.ps-c-name {
+	margin: 0;
+	font: 600 2rem/1.05 var(--font-display);
+	letter-spacing: -0.015em;
+	color: var(--sl-color-white);
+}

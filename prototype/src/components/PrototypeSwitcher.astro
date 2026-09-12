@@ -1,0 +1,126 @@
+---
+// PROTOTYPE chrome, not part of any design: cycles ?variant= with the arrows or ←/→.
+// Rendered by the dev server only, so a stray build can't ship it.
+const show = import.meta.env.DEV;
+---
+
+{
+	show && (
+		<div class="proto-bar" role="toolbar" aria-label="Prototype variant switcher">
+			<button type="button" data-dir="-1" aria-label="Previous variant">
+				<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" /></svg>
+			</button>
+			<span class="proto-label" aria-live="polite" />
+			<button type="button" data-dir="1" aria-label="Next variant">
+				<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>
+			</button>
+			<span class="proto-sep" aria-hidden="true" />
+			<a href="/">Landing</a>
+			<a href="/publisher/13.x/guides/installation/">Doc page</a>
+		</div>
+	)
+}
+
+<script>
+	const bar = document.querySelector<HTMLElement>('.proto-bar');
+	if (bar) {
+		const variants = [
+			{ key: 'A', name: 'Major Line matrix' },
+			{ key: 'B', name: 'composer require' },
+			{ key: 'C', name: 'plank.co editorial' },
+		];
+		const label = bar.querySelector<HTMLElement>('.proto-label')!;
+		const current = () => Math.max(0, variants.findIndex((v) => v.key === document.documentElement.dataset.variant));
+		const render = () => {
+			const v = variants[current()];
+			label.textContent = `${v.key} · ${v.name}`;
+		};
+		const go = (dir: number) => {
+			const v = variants[(current() + dir + variants.length) % variants.length];
+			document.documentElement.dataset.variant = v.key;
+			try { sessionStorage.setItem('proto-variant', v.key); } catch {}
+			const url = new URL(location.href);
+			url.searchParams.set('variant', v.key);
+			history.replaceState(null, '', url);
+			render();
+			document.dispatchEvent(new CustomEvent('proto:variant', { detail: v.key }));
+		};
+		bar.querySelectorAll<HTMLButtonElement>('button[data-dir]').forEach((b) =>
+			b.addEventListener('click', () => go(Number(b.dataset.dir))),
+		);
+		document.addEventListener('keydown', (e) => {
+			const t = e.target as HTMLElement;
+			if (t.closest('input, textarea, select, [contenteditable]') || e.metaKey || e.ctrlKey || e.altKey) return;
+			if (e.key === 'ArrowLeft') go(-1);
+			if (e.key === 'ArrowRight') go(1);
+		});
+		render();
+	}
+</script>
+
+<style>
+	.proto-bar {
+		position: fixed;
+		z-index: 9999;
+		bottom: 1rem;
+		left: 50%;
+		translate: -50% 0;
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		padding: 0.3rem;
+		border-radius: 999px;
+		background: #0a0a0a;
+		color: #fff;
+		font: 500 13px/1 system-ui, sans-serif;
+		letter-spacing: 0;
+		box-shadow: 0 6px 24px rgb(0 0 0 / 0.35), 0 0 0 1px rgb(255 255 255 / 0.12);
+		white-space: nowrap;
+	}
+	.proto-bar button,
+	.proto-bar a {
+		display: grid;
+		place-items: center;
+		min-width: 2rem;
+		height: 2rem;
+		padding: 0 0.6rem;
+		border: 0;
+		border-radius: 999px;
+		background: transparent;
+		color: inherit;
+		font: inherit;
+		text-decoration: none;
+		cursor: pointer;
+	}
+	.proto-bar button:hover,
+	.proto-bar a:hover {
+		background: rgb(255 255 255 / 0.14);
+	}
+	.proto-bar svg {
+		width: 16px;
+		height: 16px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+	.proto-label {
+		min-width: 11.5rem;
+		text-align: center;
+	}
+	.proto-sep {
+		width: 1px;
+		height: 1.25rem;
+		background: rgb(255 255 255 / 0.25);
+		margin: 0 0.25rem;
+	}
+	@media (max-width: 30rem) {
+		.proto-label {
+			min-width: 0;
+		}
+		.proto-bar a {
+			display: none;
+		}
+	}
+</style>
