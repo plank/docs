@@ -15,4 +15,4 @@ The Docs Tooling lives in `plank/docs`, which the User made public so that publi
 - A Package can't add steps inside the called job, only jobs before or after it.
 - `plank/docs` needs a release discipline: semver tags, with `v1` moved to each non-breaking release.
 - A run uses the workflow file from the commit that triggered it, so each Major Line branch carries its own copy of the Package's docs workflow.
-- A Docs Version keeps the Docs Tooling it was built with until it's rebuilt.
+- A Docs Version keeps the Docs Tooling it was built with until it's rebuilt. Every Docs Tooling release rebuilds every routed Docs Version (ADR 0007).
