@@ -34,7 +34,7 @@ The User chose this on 2026-09-12 in [How do the landing page and version switch
 - **The Docs Config on `main` decides both what the Docs Tooling builds and what the router routes.** The Docs Tooling refuses to build a Major Line the Docs Config doesn't list.
 - **Paths come from repo names.** A Package's path is its repo name (`packages.plank.co/<repo>`), so renaming a repo moves its path.
 - **The newest Docs Version** is the highest routed Major Line, compared as numbers.
-- **The list is read at runtime.** The landing page, version switchers and cross-Package search read `/versions.json`. The router serves it as a static file excluded from its Function.
+- **The list is read at runtime.** The landing page and version switchers read `/versions.json`. The router serves it as a static file excluded from its Function.
 - **Changes wait for the next router run.** Until then a new Docs Version 404s, and a Package made private or archived stays live. That's up to about a day, unless someone runs it by hand.
 - **Keeping private repos off the Docs Site takes three guards besides discovery:**
   - The Cloudflare token is shared with selected repos only.

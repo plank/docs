@@ -1,6 +1,6 @@
 # Starlight for the Docs Site, without React
 
-The Docs Site is built with Astro Starlight, follows Starlight's conventions unless there's a good reason to break them, and uses no React. The User chose it over Docusaurus even though the front-end team works in React. On a default doc page Starlight loads about 40× less JavaScript (3.9 KB vs 171.7 KB gzipped, measured on each framework's starter site). GSAP runs once per full page load rather than on every client-side navigation. Shiki highlights `blade` fences, and Pagefind, which search across Packages relies on, is built in.
+The Docs Site is built with Astro Starlight, follows Starlight's conventions unless there's a good reason to break them, and uses no React. The User chose it over Docusaurus even though the front-end team works in React. On a default doc page Starlight loads about 40× less JavaScript (3.9 KB vs 171.7 KB gzipped, measured on each framework's starter site). GSAP runs once per full page load rather than on every client-side navigation. Shiki highlights `blade` fences, and Pagefind is built in.
 
 ## Considered Options
 
@@ -20,5 +20,4 @@ These are the costs accepted with Starlight:
 - Every page needs `title` frontmatter.
 - Relative `.md` links aren't rewritten.
 - Content is read from `src/content/docs/`.
-- Merging search across Docs Versions means overriding Starlight's search component.
 - Mermaid needs a community plugin, with mermaid.js bundled.
