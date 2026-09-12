@@ -1,0 +1,13 @@
+# The router Pages project: holds no docs, only forwards to Docs Version Workers.
+name = "docs-router-test"
+pages_build_output_dir = "./public"
+compatibility_date = "2026-09-01"
+
+[vars]
+# "binding" forwards through the Service binding; "fetch" fetches the Worker's workers.dev URL.
+FORWARD = "binding"
+SNAPSHOTS_13X_ORIGIN = ""
+
+[[services]]
+binding = "SNAPSHOTS_13X"
+service = "docs-test-snapshots-13x"

@@ -1,0 +1,11 @@
+// The Docs Version Worker: static files only, no script.
+// Assets sit under snapshots/13.x/ because the router doesn't strip the prefix.
+{
+  "name": "docs-test-snapshots-13x",
+  "compatibility_date": "2026-09-01",
+  "workers_dev": true,
+  "assets": {
+    "directory": "./assets",
+    "not_found_handling": "404-page"
+  }
+}
