@@ -27,3 +27,7 @@ _Avoid_: Docs portal, per-package site
 **Docs Tooling**:
 The shared build, theme and deploy that turns a Package's Package Docs into Docs Versions on the Docs Site. It lives in this repo, and every Package uses the same one.
 _Avoid_: Docs Build, Docs Theme, shared build tooling
+
+**Docs Config**:
+The file on a Package's default branch that puts it on the Docs Site: it lists the Package's Major Lines and how it's presented on the landing page. A Major Line not listed has no Docs Version.
+_Avoid_: config file, manifest
