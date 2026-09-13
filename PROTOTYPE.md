@@ -33,6 +33,8 @@ plank.co has no code blocks, so each variant takes them in a different direction
 
 Landing B's sample card keeps its own shape and tilt in every variant, and only takes the variant's syntax colours. In B the card turns forest, since B's theme only reads on forest.
 
+**The User chose A · Sand card on 2026-09-13** ("by far my favorite"), so `?variant=` defaults to A.
+
 ## As built, not decided
 
 - The language labels come from each fence's language (`php`, `bash`, `blade`, `json`, `sql`). A shell block is labelled "Terminal".
