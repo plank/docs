@@ -776,7 +776,7 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 			}
 			@media (max-width: 52rem) {
 				.vb-panel {
-					grid-template-columns: 1fr;
+					grid-template-columns: minmax(0, 1fr);
 				}
 				.vb-sample {
 					rotate: 0deg;
@@ -924,7 +924,7 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 			}
 			@media (max-width: 52rem) {
 				.vc-pkg {
-					grid-template-columns: 1fr;
+					grid-template-columns: minmax(0, 1fr);
 				}
 				.vc-pkg:nth-child(even) .vc-figure {
 					order: 0;
