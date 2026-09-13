@@ -19,6 +19,9 @@ Package Docs are plain GitHub markdown, because each page is read in two places:
 - **Conversions:**
   - A page's first `#` heading becomes its `title`.
   - Relative `.md` links become site paths.
+  - A relative link that leads outside the Package Docs (e.g. `../CHANGELOG.md`) goes to that file on GitHub, at the release tag being built.
+  - Links to other Packages stay as written.
   - Both `> **Note:**`-style blockquotes and GitHub alerts become Starlight asides.
+- **Broken links don't stop a build.** Links and headings that lead nowhere are listed in the run's summary on GitHub, and the Docs Version deploys anyway, because a fix would wait for the next release (ADR 0006). The User chose this, and both link rules above, on 2026-09-13 in [How do readers get between Packages and Docs Versions, and what do they get at a missing page?](https://github.com/plank/docs/issues/20).
 - **The conversion is a layer of our own to maintain.** A change to its rules reaches a Docs Version only when it's rebuilt (ADR 0002).
 - **Starlight-only features** (tabs, cards) each need a convention of our own before Package Docs can use them.
