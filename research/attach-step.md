@@ -190,3 +190,99 @@ Queried 2026-09-13 with `dig`, the `packages` and wildcard checks against `dns1.
 - **Credentials tied to the forks** (inferred): Cloudflare tokens stored as secrets in the forks are deleted with them. Deleting a secret doesn't revoke the token in the stand-in Cloudflare account.
 
 **Confidence:** high for quoted GitHub docs; low for open PRs (community only).
+
+## 7. A shared `docs@plank.co` login
+
+Facts gathered 2026-09-13. `plank.co`'s mail is on Google Workspace (section 4). Plank plans a Workspace address `docs@plank.co` whose recipients Plank configures. A shared login on it is meant to own the Cloudflare account (ADR 0008) and to register the Docs Site with Search Console and Bing ([#26](https://github.com/plank/docs/issues/26)). Several Workspace help pages now redirect from `support.google.com/a/answer/…` to `knowledge.workspace.google.com`; the links below are the pages as fetched.
+
+**Three kinds of Workspace address:**
+- **User alias** ("alternate email address") ([Add or delete an email alias](https://knowledge.workspace.google.com/admin/users/add-or-delete-an-alternate-email-address-email-alias)):
+  - "Messages sent to the email alias automatically route to the user's primary email account's inbox."
+  - "Email aliases are not Google Accounts, so you can't sign in with an email alias address and access Google services, like Google Drive."
+  - "You can add up to 30 email aliases for each user at no extra cost."
+  - "Only one user can use an email alias. If you need an email address that's used by multiple users, we recommend using Gmail delegation instead."
+  - "Email aliases don't support delegates because an alias isn't a Google Account" ([Delegate a user's email address](https://knowledge.workspace.google.com/admin/users/delegate-a-users-email-address)).
+- **Google Group:**
+  - "A Google group is a named collection of Google Accounts." "Google groups don't have login credentials, and you can't use Google groups to establish identity to make a request to access a resource" ([IAM principals](https://docs.cloud.google.com/iam/docs/principals-overview), Google Cloud docs).
+  - "Google Groups can be added as account delegates. One Group counts as a single delegate for that account" ([Delegate a user's email address](https://knowledge.workspace.google.com/admin/users/delegate-a-users-email-address)).
+- **Workspace user:**
+  - "A user needs a license to use a Google service." "Multiple users can't share a single Google Workspace license, even if they don't use all of the tools" ([How licensing works](https://knowledge.workspace.google.com/admin/billing/how-licensing-works)).
+  - The price of a licence on Plank's plan wasn't checked; unconfirmed.
+  - Shared use is through Gmail delegation. "In Gmail, delegated accounts and shared inboxes are the same." Delegates "can read, send, and delete messages for the delegated account. However, they can't chat with anyone from the delegated account or change the password." Up to 1000 delegates, with at most 40 concurrent users recommended ([Delegate a user's email address](https://knowledge.workspace.google.com/admin/users/delegate-a-users-email-address)).
+- **One namespace.** The "Username already exists" error reads "A user, alias, or group already exists with that username" ([Username already exists](https://knowledge.workspace.google.com/admin/support/troubleshooting/username-already-exists)). "You can't create an alias with the same name as an existing Google Account in your organization" ([email alias](https://knowledge.workspace.google.com/admin/users/add-or-delete-an-alternate-email-address-email-alias)).
+- *Inferred:* "recipients Plank configures", if that means several people, matches a Google Group, or a user whose mailbox is delegated. A user alias delivers to one user's inbox.
+
+**Cloud Identity Free, a fourth kind** ([How licensing works for Cloud Identity](https://docs.cloud.google.com/identity/docs/how-to/how-licensing-works-for-cloud-identity)):
+- Users added this way "automatically get a free Cloud Identity license". "When you sign up for a free Cloud Identity account, your user cap increases by 50."
+- One account can mix the two. The page's example: "100 users with both free Cloud Identity and Google Workspace; 150 users with free Cloud Identity only."
+- The fetch summarised the page as not including Gmail in the free licence; the exact sentence wasn't captured.
+- Adding it to a Workspace account: Admin console **Billing** > **Buy or upgrade** > **Cloud Identity**. "If your organization bought Google Workspace from a third party, you need to contact your reseller" ([Add Cloud Identity licenses](https://docs.cloud.google.com/identity/docs/how-to/add-cloud-identity-licenses)).
+- Unconfirmed: where mail sent to a Cloud Identity-only user's address goes.
+
+**A personal Google Account on a Workspace address:**
+- **Creating one.** Google Account help: **Create account** > **For my personal use** > **Use your existing email**, then enter the code sent to that address. "If the email is already used - You can't choose this email address for a new account" ([Create a Google Account](https://support.google.com/accounts/answer/27441)). The page says nothing about work addresses, Workspace domains, aliases or groups.
+- **What address qualifies.** "A Google Account may be created using any standard email address that can receive mail. Because of this, you may have used your Google Workspace email address to create a conflicting account" ([How a conflicting account is created](https://support.google.com/accounts/answer/181526)).
+- **Verification.** "When you're setting up a Google Account with a non-Google email, we'll send a verification code to the email address you used to create the account." "If you don't verify your address, you won't be able to create a Google Account" ([Verify your Google Account](https://support.google.com/accounts/answer/63950)).
+- **Names Google uses:**
+  - "A conflicting account is a personal Google Account that was created using the email address of a Google Workspace account." The two "share the same primary email address, but are completely unrelated" ([How a conflicting account is created](https://support.google.com/accounts/answer/181526)).
+  - "Unmanaged accounts are users who independently created a Google account using one of your organization's domains." They are "not controlled by Google Workspace or Cloud Identity administrators" ([Find and add unmanaged users](https://knowledge.workspace.google.com/admin/users/find-and-add-unmanaged-users)).
+- **On an alias address:**
+  - No Google page read says outright that an alias address can be used. The unmanaged-users page does say "The Transfer tool for unmanaged users and the Conflicting accounts management setting only support handling conflicts on an account's primary email address. User invitations aren't supported for conflicts on an alternate or alias email address" ([Find and add unmanaged users](https://knowledge.workspace.google.com/admin/users/find-and-add-unmanaged-users)).
+  - The Transfer tool: "You can only transfer accounts if the primary email address of the user is an organization email address, not an alternate email address" ([Use the transfer tool](https://knowledge.workspace.google.com/admin/users/use-the-transfer-tool-to-migrate-unmanaged-users)).
+  - *Inferred:* an alias receives mail, so it meets "any standard email address that can receive mail", and the verification code lands in the one user's inbox. Untested.
+- **On a Google Group address:**
+  - No Google page read addresses it; unconfirmed.
+  - The nearest page: for Gmail "send as" a group, "Gmail sends a confirmation code to the group". Receiving it may need the group's **Who can post** set to **Anyone on the web**, with moderation of non-members' messages optional ([Add a group as an email address in Gmail](https://support.google.com/groups/answer/10309372)).
+  - *Inferred:* the account-creation code comes from outside the domain (the sender below), so a group gets it only if it accepts posts from outside. Untested.
+- **Blocking it** ([Prevent creation of unmanaged user accounts](https://knowledge.workspace.google.com/admin/users/prevent-creation-of-unmanaged-user-accounts), updated 2026-09-10). Two options:
+  - "Create a user for every person who has an email address in your domain", or invite existing unmanaged accounts to transfer.
+  - "Configure your mail server to block the Google sign-up verification emails". Envelope from `*@idverification.bounces.google.com`, header from `noreply@google.com`, subject "Verify your email address". The subject is language-specific.
+  - The page doesn't mention aliases or groups, or how to set up the block when the mail server is Gmail itself. Both unconfirmed.
+  - *Inferred:* a block on the verification email would also stop a personal Google Account being created on `docs@`.
+- **Conflicting accounts management** ([Workspace Updates, 2023-08-18](https://workspaceupdates.googleblog.com/2023/08/conflict-accounts-management-tool.html)). When an admin provisions a managed user on an address that already has a personal account, the options are:
+  - invite the person to transfer;
+  - replace the personal account, where "data owned by the account will not be imported" and the person gets "a temporary account address, which they'll need to manually replace with a @gmail.com address of their choice";
+  - don't create the managed user.
+  - The post says these apply "only when users are provisioned using the public Directory API with URL parameter resolveConflictAccount set to true". The current admin page's wording on this wasn't captured.
+  - *Inferred:* a personal account on `docs@` becomes a conflict on a primary address if `docs@` later becomes a Workspace user. These tools cover that case, not the alias case.
+- **Admin control over Search Console for managed users.** Search Console is one of the "Additional Google services" an admin turns on or off, for everyone, an organizational unit or an access group ([Turn Google Search Console on or off for users](https://knowledge.workspace.google.com/admin/users/access/turn-google-search-console-on-or-off-for-users)). That page doesn't say what happens to existing properties when it's off; unconfirmed. *Inferred:* the setting reaches managed users only, not a personal account on a Workspace address.
+
+**Search Console ownership** ([Managing owners, users, and permissions](https://support.google.com/webmasters/answer/7687615)):
+- **Two kinds of owner.** A verified owner used "a token to prove ownership (such as an HTML file uploaded to the website)". A delegated owner was granted ownership "by a verified owner without the use of a verification token."
+- **Who can be added:**
+  - "Users must have a valid Google Account."
+  - "An email group cannot be added as a user."
+  - "You must be a property owner (or an owner of a parent property) to add or remove another user."
+- **Limits** (paraphrased by the fetch): up to 100 non-owner users per property. Delegated owners can be added until verified plus delegated owners reach 500. No cap on verified owners.
+- **Losing verification.** "If all verified owners are removed, then all remaining users and delegated owners will lose access", after a grace period. Section 5 has the verification file being "tied to a specific user".
+- **Seeing methods.** "If you are a verified owner, you can determine the method(s) used to verify yourself or any other verified owners."
+- **Domain properties** ([Add a property](https://support.google.com/webmasters/answer/34592)):
+  - A Domain property "Includes all subdomains (m, www, and so on) and multiple protocols (http, https, ftp)". It verifies by DNS record only.
+  - Google's example: a Domain property on `example.com` includes "any subdomains of example.com (for example, m.example.com, support.m.example.com, www.example.com, and so on)".
+  - Section 5: once a property is verified, "any child properties that you add will be auto-verified using the same verification method as the parent".
+  - *Inferred:* a `plank.co` Domain property would include `packages.plank.co`. Its owners, as owners of a parent property, could add or remove users on a `packages.plank.co` property.
+- **Does Plank have a `plank.co` Domain property?** Unconfirmed. The apex `google-site-verification=` TXT (section 4) fits both uses:
+  - Workspace domain verification uses the form `google-site-verification=abcdef123_456wx789yz`. "The unique TXT record must stay in your domain's DNS settings until Google detects it and verifies ownership", and once verified "the TXT record can be safely removed" ([Verify your domain with a TXT record](https://knowledge.workspace.google.com/admin/domains/verify-your-domain-with-a-txt-record)).
+  - A Search Console Domain property asks for the record to stay (section 5).
+  - The admin page also notes "Search Console may also be used to verify site ownership for other Google Services" ([Turn Search Console on or off](https://knowledge.workspace.google.com/admin/users/access/turn-google-search-console-on-or-off-for-users)).
+  - *Inferred:* the record alone doesn't tell which service placed it. Only a verified owner of such a property could see its methods.
+
+**Bing Webmaster Tools sign-in:**
+- **Account types:**
+  - "Webmasters will be able to login to Bing Webmaster Tools using their Facebook and Google accounts in addition to their existing Microsoft account" ([Introducing Social Login](https://blogs.bing.com/webmaster/january-2018/Introducing-Social-Login-for-Bing-Webmaster-Tools), 2018-02-09).
+  - "sign in using your Microsoft, Google, or Facebook account" ([Start Using Bing Webmaster Tools](https://blogs.bing.com/webmaster/June-2025/Start-Using-Bing-Webmaster-Tools-to-Improve-Your-Site-Visibility), 2025-06-17).
+- **Mail.** "the messages Webmaster Tools may occasionally send you about your managed properties will be sent to the email account associated with the webmaster tools account you are logged in with" (2018 post).
+- **Adding users.** Read from the help pages' source with `curl`, as in section 5 ([How to add users](https://www.bing.com/webmasters/help/how-to-add-users-to-your-site-account-d5d00364)):
+  - "The new user needs to sign up on Bing Webmaster Tools using Microsoft, Facebook or Gmail account. Once the new user has signed up, the administrator can add him as a new user … Enter their Microsoft, Gmail or the email associated with Facebook account in the Email field".
+  - The Administrator role "allows those with this level of permission to control all features and functions, including adding and delegating new users."
+  - If the address isn't signed up: "User with this email does not exist. Please sign up on Bing Webmaster Tools with this email and try again."
+  - Unconfirmed: whether "Gmail" there covers a Google Account on a non-Gmail address such as `docs@plank.co`.
+- **Import from Search Console** ([Bing blog, 2019, updated June 2025](https://blogs.bing.com/webmaster/september-2019/Import-sites-from-Search-Console-to-Bing-Webmaster-Tools)):
+  - Step 1: "Sign-in to your Bing Webmaster Tools account or create a new one".
+  - Step 3: "Sign-in with your Google Search Console account and click Allow to give Bing Webmaster Tools access to your list of verified sites and sitemaps."
+  - UI strings: "we require you to sign-in to your Google Search Console account and would need View-Only permissions"; "We will only import the list of your verified sites"; the labels "Google search console accounts" and "No Search Console account is linked to Bing Webmaster Tools."
+- **Unconfirmed:**
+  - whether the Google account authorised in step 3 must be the one used to sign in to Bing. Neither source says. *Inferred:* they are separate steps, and the "linked" wording suggests a Google account connected to the Bing account rather than its sign-in;
+  - whether "verified sites" includes properties where that Google account is a delegated owner or a user rather than a verified owner.
+
+**Confidence:** high for quoted Google and Bing text; low for personal accounts on alias or group addresses (no Google page says so outright), and for which Google account Bing's import must use (not stated).
