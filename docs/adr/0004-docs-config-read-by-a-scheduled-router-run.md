@@ -42,6 +42,7 @@ The User chose this on 2026-09-12 in [How do the landing page and version switch
   - Docs Version Workers deploy with `workers_dev = false` and previews off, so a Docs Version isn't viewable before it's routed.
 - **Errors fail safe:**
   - A failed scan stops the run.
-  - If a Docs Config can't be read, its Package's entries carry over unchanged from the live `/versions.json`.
-- **The schedule can switch off.** GitHub turns it off after 60 days with no activity in `plank/docs`.
+  - If a Docs Config can't be read, its Package's entries carry over unchanged from the live `/versions.json`. The run still routes, redeploys and deletes as usual, then fails, naming each Package whose Docs Config couldn't be read. It stays red, with a notice each day, until the Docs Config is fixed.
+- **The router run keeps its own schedule on.** GitHub turns a public repo's schedule off after 60 days with no activity, and doesn't define activity. So each run re-enables its own workflow through GitHub's API, with the run's own token (`actions: write`), in a job of its own that runs even when the router job fails. GitHub doesn't document that this resets the 60 days. It's seen working on Silverstripe's repos, and the builder confirms the call and the run's actor on the stand-in. Decided on 2026-09-13 in [How does anyone notice when the router run stops working?](https://github.com/plank/docs/issues/24).
+- **A failed run is noticed only through GitHub's own notice** to the user the cron line belongs to, and only if that user's Actions notifications are on. That user is one of the named few (ADR 0008). If their GitHub account is deleted, the schedule stops (community reports), and nothing notices. Scheduled runs can also be delayed, or dropped at busy times.
 - **The router run needs its own Cloudflare token.** It must be able to deploy the router's Pages project and list and delete Workers.

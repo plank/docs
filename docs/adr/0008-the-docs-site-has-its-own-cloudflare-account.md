@@ -14,6 +14,7 @@ The router Pages project and every Docs Version's Worker live in a Cloudflare ac
 
 - **The tokens' reach, the daily limit and the Worker limit cover only the Docs Site.** Any Package's token can still overwrite or delete any Docs Version's Worker.
 - **The shared password manager entry is the boundary.** Whoever can open it can deploy, delete, create tokens and flip fail-open. When one of the named few leaves, the password and TOTP are rotated.
+- **One of the named few owns the router run's cron line** (ADR 0004). They commit it at the attach step, so GitHub's notices of failed router runs go to them. When they leave, the next holder edits the cron line to take it over, alongside rotating the password and TOTP. Added on 2026-09-13 in [How does anyone notice when the router run stops working?](https://github.com/plank/docs/issues/24).
 - **Everything is done as one login**, so the account's audit log can't tell the named few apart (inferred).
 - **The account depends on the shared login's Cloudflare user.** Deleting that user profile deletes the account.
 - **Cloudflare's daily-limit emails reach the named few through the forward.** Cloudflare doesn't document who receives them (the account's email is inferred), and it has no configurable notification for the Workers daily limit.
