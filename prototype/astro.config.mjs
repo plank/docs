@@ -1,8 +1,8 @@
 // @ts-check
-// PROTOTYPE for plank/docs#19 "Does the Docs Site have a dark mode, and what does it look like?" — throwaway.
-// Built on the plank/docs#7 prototype. Three dark palettes for the chosen landing page (B) and doc page (A),
-// switchable via ?variant=A|B|C on `/` and on every doc page. One build holds two Packages' 13.x docs;
-// a real Docs Version is one Package, one build.
+// PROTOTYPE for plank/docs#25 "How do code blocks look, and which syntax theme do they use?" — throwaway.
+// Built on the plank/docs#19 prototype (Ink dark mode) and the plank/docs#7 one (landing B, doc page A).
+// Three code-block variants, each with its own light and dark syntax theme, switchable via ?variant=A|B|C
+// on `/` and on every doc page. One build holds two Packages' 13.x docs; a real Docs Version is one Package.
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
@@ -28,10 +28,7 @@ export default defineConfig({
 				ThemeSelect: './src/components/ThemeToggle.astro',
 			},
 			routeMiddleware: './src/routeData.ts',
-			expressiveCode: {
-				themes: ['vitesse-light', 'vitesse-dark'],
-				styleOverrides: { borderRadius: '10px', codeFontFamily: 'var(--font-code)' },
-			},
+			// Expressive Code's options are in ec.config.mjs (plank/docs#25).
 			// Publisher's order comes from its own docs/README.md index.
 			sidebar: [
 				{

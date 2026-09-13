@@ -11,7 +11,7 @@
 	--sl-text-h3: 1.5rem;
 	--sl-text-h4: 1.2rem;
 
-	/* Dark: one of the three palettes in tokens.css, picked by ?variant= (plank/docs#19). */
+	/* Dark: Ink, from tokens.css (plank/docs#19). */
 	--sl-color-accent-low: var(--dk-accent-low);
 	--sl-color-accent: var(--plank-coral);
 	--sl-color-accent-high: var(--dk-accent-high);
@@ -315,16 +315,256 @@ html[data-layout='C'] .sl-markdown-content h2 {
 	color: var(--sl-color-white);
 }
 
-/* ---------- Dark code blocks (PROTOTYPE for plank/docs#19) ---------- */
-/* vitesse-dark's own #121212 sits on each palette's code colour instead. */
-:root[data-theme='dark'] .expressive-code {
-	--ec-codeBg: var(--dk-code) !important;
-	--ec-frm-edBg: var(--dk-code) !important;
-	--ec-frm-edActTabBg: var(--dk-code) !important;
-	--ec-frm-edTabBarBg: var(--dk-raised) !important;
-	--ec-frm-edTabBarBrdBtmCol: var(--dk-rule) !important;
-	--ec-frm-trmBg: var(--dk-code) !important;
-	--ec-frm-trmTtbBg: var(--dk-raised) !important;
-	--ec-frm-trmTtbBrdBtmCol: var(--dk-rule) !important;
-	--ec-brdCol: var(--dk-rule) !important;
+/* ---------- Code blocks (PROTOTYPE for plank/docs#25) ---------- */
+/* Syntax colours come from the themes in src/code-themes.mjs (A, B) and Shiki's GitHub themes (C), picked per
+   variant and theme in astro.config.mjs. Only structure lives here. B and C label each block from the data-lang
+   the config's plugin puts on its frame and header. */
+
+/* Line numbers are rendered on every block; only C shows them, and not on one-line terminal commands.
+   Hiding them has to take the gutter's separator (a border on the code) with it. */
+html:not([data-variant='C']) .expressive-code .gutter,
+html[data-variant='C'] .expressive-code .frame.is-terminal .gutter {
+	display: none;
+}
+html:not([data-variant='C']) .expressive-code .ec-line .code,
+html[data-variant='C'] .expressive-code .frame.is-terminal .ec-line .code {
+	border-inline-start: 0;
+}
+
+/* B and C draw their own frame: no radius, no header separator, and the label row reads left to right. */
+html:is([data-variant='B'], [data-variant='C']) .expressive-code .frame,
+html:is([data-variant='B'], [data-variant='C']) .expressive-code .frame .header {
+	border-radius: 0;
+}
+html:is([data-variant='B'], [data-variant='C']) .expressive-code .frame .header {
+	justify-content: flex-start;
+}
+html:is([data-variant='B'], [data-variant='C']) .expressive-code .frame .header::after {
+	display: none;
+}
+/* Expressive Code pads the <code> inside <pre> too; the label row already gives the top its air. */
+html:is([data-variant='B'], [data-variant='C']) .expressive-code .frame pre > code {
+	padding-block-start: 0.25rem;
+}
+/* Expressive Code's copy button is an icon over an absolutely placed ::after; B and C make it a word. */
+html:is([data-variant='B'], [data-variant='C']) .expressive-code .copy button {
+	display: inline-flex;
+	align-items: center;
+}
+html:is([data-variant='B'], [data-variant='C']) .expressive-code .copy button::after {
+	position: static;
+	inset: auto;
+	width: auto;
+	height: auto;
+	margin: 0;
+	border: 0;
+	background: none;
+	/* The icon is a mask on this same pseudo-element; left on, it clips the word to the icon's shape. */
+	mask: none;
+	-webkit-mask: none;
+	opacity: 1;
+}
+
+/* A · Sand card: Expressive Code's frames as Starlight ships them (file tabs, terminal windows, copy on hover),
+   on plank.co's sand, with a coral indicator on the active file tab. */
+html[data-variant='A'][data-theme='light'] .expressive-code .frame pre,
+html[data-variant='A'][data-theme='light'] .expressive-code .frame .header {
+	border-color: #dcd7cf;
+}
+
+/* B · Forest slab: every block is a forest slab with plank.co's hand-cut edge, wider than the text,
+   in light and dark alike. Its language sits in coral above the code, and Copy is always showing. */
+html[data-variant='B'] .expressive-code {
+	--slab: var(--plank-forest);
+	margin-inline: calc(-1 * var(--sl-content-pad-x, 1rem));
+}
+html[data-variant='B'][data-theme='dark'] .expressive-code {
+	--slab: var(--plank-forest-deep);
+}
+@media (min-width: 50rem) {
+	html[data-variant='B'] .expressive-code {
+		margin-inline: -1.5rem;
+	}
+}
+html[data-variant='B'] .expressive-code .frame {
+	position: relative;
+	padding: 2.5rem 0 0.4rem;
+	background: var(--slab);
+	box-shadow: none;
+	/* plank.co's $button-clip-path-shape, in pixels so it stays a hand-cut edge on tall blocks. */
+	clip-path: polygon(
+		0 3px, 18% 0, 47% 2px, 81% 0, 100% 3px,
+		100% calc(100% - 2px), 74% 100%, 43% calc(100% - 3px), 15% 100%, 0 calc(100% - 1px)
+	);
+}
+html[data-variant='B'] .expressive-code .frame pre {
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	padding-block: 0 0.75rem;
+}
+html[data-variant='B'] .expressive-code .ec-line .code {
+	padding-inline: 1.5rem;
+}
+html[data-variant='B'] .expressive-code .frame .header {
+	display: flex !important;
+	position: absolute;
+	inset: 0 0 auto;
+	height: 2.5rem;
+	align-items: center;
+	gap: 0.9rem;
+	padding: 0 6rem 0 1.5rem;
+	background: none;
+	border: 0;
+}
+html[data-variant='B'] .expressive-code .frame .header::before {
+	content: attr(data-lang);
+	position: static;
+	width: auto;
+	height: auto;
+	mask: none;
+	-webkit-mask: none;
+	background: none;
+	opacity: 1;
+	color: var(--plank-coral);
+	font: 600 0.7rem/1 var(--font-body);
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+html[data-variant='B'] .expressive-code .frame.is-terminal .header::before {
+	content: 'Terminal';
+}
+html[data-variant='B'] .expressive-code .frame .header .title {
+	padding: 0;
+	margin: 0;
+	background: none;
+	border: 0;
+	color: var(--plank-mist);
+	font: 0.8rem/1 var(--font-code);
+}
+html[data-variant='B'] .expressive-code .frame .header .title::before,
+html[data-variant='B'] .expressive-code .frame .header .title::after {
+	display: none;
+}
+html[data-variant='B'] .expressive-code .copy {
+	inset-block-start: 0.6rem;
+	inset-inline-end: 1.5rem;
+}
+html[data-variant='B'] .expressive-code .copy button {
+	opacity: 1;
+	width: auto;
+	height: auto;
+	padding: 0.45rem 0.7rem;
+	border: 0;
+	border-radius: 7px;
+	background: var(--plank-coral);
+	color: var(--plank-ink);
+}
+html[data-variant='B'] .expressive-code .copy button::before,
+html[data-variant='B'] .expressive-code .copy button div {
+	display: none;
+}
+html[data-variant='B'] .expressive-code .copy button::after {
+	content: 'Copy';
+	font: 600 0.68rem/1 var(--font-body);
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+/* C · Open figure: no box. The code sits on the page between a strong top rule and a hairline, like a figure
+   in plank.co's editorial pages. The language and file name caption it, Copy is a plank.co link, and line
+   numbers sit behind a hairline. GitHub's own themes, as readers see the same markdown on GitHub. */
+html[data-variant='C'] .expressive-code .frame {
+	position: relative;
+	padding-top: 2.5rem;
+	box-shadow: none;
+	border-top: 1px solid var(--sl-color-white);
+	border-bottom: 1px solid var(--sl-color-gray-5);
+}
+html[data-variant='C'] .expressive-code .frame pre {
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	padding-block: 0 0.9rem;
+}
+html[data-variant='C'] .expressive-code .ec-line .code {
+	border-inline-start: 1px solid var(--sl-color-gray-5);
+}
+html[data-variant='C'] .expressive-code .frame.is-terminal .ec-line .code {
+	padding-inline-start: 0;
+}
+html[data-variant='C'] .expressive-code .frame .header {
+	display: flex !important;
+	position: absolute;
+	inset: 0 0 auto;
+	height: 2.5rem;
+	align-items: center;
+	gap: 0.85rem;
+	padding: 0 4rem 0 0;
+	background: none;
+	border: 0;
+}
+html[data-variant='C'] .expressive-code .frame .header::before {
+	content: attr(data-lang);
+	position: static;
+	width: auto;
+	height: auto;
+	mask: none;
+	-webkit-mask: none;
+	background: none;
+	opacity: 1;
+	color: var(--sl-color-gray-3);
+	font: 600 0.7rem/1 var(--font-body);
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+html[data-variant='C'] .expressive-code .frame.is-terminal .header::before {
+	content: 'Terminal';
+}
+html[data-variant='C'] .expressive-code .frame .header .title {
+	padding: 0;
+	margin: 0;
+	background: none;
+	border: 0;
+	color: var(--sl-color-gray-2);
+	font: italic 400 1rem/1 var(--font-display);
+}
+html[data-variant='C'] .expressive-code .frame .header .title::before,
+html[data-variant='C'] .expressive-code .frame .header .title::after {
+	display: none;
+}
+html[data-variant='C'] .expressive-code .gutter {
+	border: 0;
+	box-shadow: none;
+}
+html[data-variant='C'] .expressive-code .gutter .ln {
+	color: var(--sl-color-gray-4);
+	font-variant-numeric: tabular-nums;
+}
+html[data-variant='C'] .expressive-code .copy {
+	inset-block-start: 0.55rem;
+	inset-inline-end: 0;
+}
+html[data-variant='C'] .expressive-code .copy button {
+	opacity: 1;
+	width: auto;
+	height: auto;
+	padding: 0.2rem 0;
+	border: 0;
+	border-radius: 0;
+	color: var(--sl-color-gray-2);
+	background: linear-gradient(var(--plank-coral), var(--plank-coral)) no-repeat left bottom / 100% 2px;
+	transition: background-size 0.3s var(--ease-out), color 0.3s;
+}
+html[data-variant='C'] .expressive-code .copy button:hover {
+	background-size: 100% 100%;
+	color: var(--plank-ink);
+}
+html[data-variant='C'] .expressive-code .copy button::before,
+html[data-variant='C'] .expressive-code .copy button div {
+	display: none;
+}
+html[data-variant='C'] .expressive-code .copy button::after {
+	content: 'Copy';
+	font: 500 0.85rem/1.2 var(--font-body);
 }

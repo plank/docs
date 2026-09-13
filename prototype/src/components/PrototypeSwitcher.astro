@@ -1,6 +1,6 @@
 ---
-// PROTOTYPE chrome, not part of any design: cycles ?variant= (the dark palette) with the arrows or ←/→,
-// and flips light/dark so each palette can be compared with the light site it extends.
+// PROTOTYPE chrome, not part of any design: cycles ?variant= (the code-block variant, plank/docs#25) with the
+// arrows or ←/→, and flips light/dark so each variant's two syntax themes can be compared.
 // Rendered by the dev server only, so a stray build can't ship it.
 const show = import.meta.env.DEV;
 ---
@@ -19,7 +19,8 @@ const show = import.meta.env.DEV;
 			<button type="button" class="proto-theme" />
 			<span class="proto-sep" aria-hidden="true" />
 			<a href="/">Landing</a>
-			<a href="/publisher/13.x/guides/installation/">Doc page</a>
+			<a href="/publisher/13.x/guides/installation/">Install</a>
+			<a href="/publisher/13.x/advanced/admin-panel-integration/">Admin panels</a>
 		</div>
 	)
 }
@@ -29,9 +30,9 @@ const show = import.meta.env.DEV;
 	if (bar) {
 		const root = document.documentElement;
 		const variants = [
-			{ key: 'A', name: 'Forest night' },
-			{ key: 'B', name: 'Ink' },
-			{ key: 'C', name: 'Warm dusk' },
+			{ key: 'A', name: 'Sand card' },
+			{ key: 'B', name: 'Forest slab' },
+			{ key: 'C', name: 'Open figure' },
 		];
 		const label = bar.querySelector<HTMLElement>('.proto-label')!;
 		const themeBtn = bar.querySelector<HTMLButtonElement>('.proto-theme')!;
@@ -46,7 +47,7 @@ const show = import.meta.env.DEV;
 		const go = (dir: number) => {
 			const v = variants[(current() + dir + variants.length) % variants.length];
 			root.dataset.variant = v.key;
-			try { sessionStorage.setItem('proto-dark', v.key); } catch {}
+			try { sessionStorage.setItem('proto-code', v.key); } catch {}
 			const url = new URL(location.href);
 			url.searchParams.set('variant', v.key);
 			history.replaceState(null, '', url);

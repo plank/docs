@@ -5,6 +5,8 @@ import '@fontsource-variable/newsreader/opsz.css';
 import '@fontsource-variable/instrument-sans';
 import '../styles/tokens.css';
 import { Code } from 'astro:components';
+// PROTOTYPE for plank/docs#25: landing B's samples go through Expressive Code, so they take the variant's syntax theme.
+import { Code as EcCode } from 'astro-expressive-code/components';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import VariantBoot from '../components/VariantBoot.astro';
 import PrototypeSwitcher from '../components/PrototypeSwitcher.astro';
@@ -198,7 +200,7 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 							</div>
 							<figure class="sample vb-sample">
 								<figcaption>{p.sampleLabel}</figcaption>
-								<Code code={p.sample} lang="php" themes={{ light: 'vitesse-light', dark: 'vitesse-dark' }} />
+								<EcCode code={p.sample} lang="php" frame="none" />
 							</figure>
 						</section>
 					))
@@ -364,10 +366,32 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 			.top nav {
 				align-items: center;
 			}
-			/* Code samples carry both vitesse themes; dark reads the second. */
-			:global(:root[data-theme='dark'] .sample .astro-code),
-			:global(:root[data-theme='dark'] .sample .astro-code span) {
-				color: var(--shiki-dark) !important;
+			/* ---------- Code samples (PROTOTYPE for plank/docs#25) ---------- */
+			/* The sample card stays landing B's own; only its syntax colours follow the code-block variant.
+			   In B the card itself becomes a forest slab, since B's forest theme only reads on forest. */
+			.sample :global(.expressive-code) {
+				margin: 0;
+			}
+			.sample :global(.expressive-code .frame) {
+				box-shadow: none;
+			}
+			.sample :global(.expressive-code pre) {
+				border: 0;
+			}
+			.sample :global(.expressive-code .ec-line .code) {
+				padding-inline: 0;
+			}
+			.sample :global(.expressive-code :is(.gutter, .copy)) {
+				display: none;
+			}
+			:global(html[data-variant='B']) .sample {
+				background: var(--plank-forest);
+			}
+			:global(html[data-variant='B'][data-theme='dark']) .sample {
+				background: var(--plank-forest-deep);
+			}
+			:global(html[data-variant='B']) .sample figcaption {
+				color: var(--plank-sage);
 			}
 
 			body {
