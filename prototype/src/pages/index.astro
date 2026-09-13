@@ -1,11 +1,14 @@
 ---
-// PROTOTYPE: three variants of the Docs Site's landing page, switchable via ?variant=A|B|C.
-// In the real Docs Site the router run builds this page from every Package's Docs Config (ADR 0004).
+// PROTOTYPE: the landing page plank/docs#7 chose (B · composer require), carrying plank/docs#22's three
+// motion variants, switchable via ?variant=A|B|C (see motion.css). A and C's page designs from #7 are
+// still in this file, unused. In the real Docs Site the router run builds this page (ADR 0004).
 import '@fontsource-variable/newsreader/opsz.css';
 import '@fontsource-variable/instrument-sans';
 import '../styles/tokens.css';
+import '../styles/motion.css';
 import { Code } from 'astro:components';
 import VariantBoot from '../components/VariantBoot.astro';
+import MotionToggle from '../components/MotionToggle.astro';
 import PrototypeSwitcher from '../components/PrototypeSwitcher.astro';
 import Arrow from '../components/Arrow.astro';
 import Logo from '../assets/plank/logo.svg';
@@ -18,6 +21,8 @@ import { packages, allMajors, newest } from '../data/packages';
 
 const shapes = { yellow: ShapeYellow, coral: ShapeCoral, blue: ShapeBlue };
 const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== newest(p));
+// Split into words so C can slide them up one by one, as plank.co's hero does.
+const headline = 'Open-source Laravel packages from'.split(' ');
 ---
 
 <html lang="en">
@@ -116,12 +121,31 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 						<span class="sr-only">Plank Packages</span>
 					</a>
 					<nav aria-label="Elsewhere">
+						<MotionToggle />
 						<a class="plank-link" href="https://github.com/plank">GitHub</a>
 						<a class="plank-link" href="https://plank.co">plank.co</a>
 					</nav>
 				</header>
 				<div class="wrap vb-hero">
-					<h1>Open-source Laravel packages from Plank.</h1>
+					<h1>
+						{
+							headline.map((w, i) => (
+								<>
+									<span class="w">
+										<span style={`--i:${i}`}>{w}</span>
+									</span>{' '}
+								</>
+							))
+						}
+						<span class="w-mark"
+							><span class="w"><span style={`--i:${headline.length}`}>Plank.</span></span><Squiggle
+								class="vb-squiggle"
+								data-m="C"
+								aria-hidden="true"
+								preserveAspectRatio="none"
+							/></span
+						>
+					</h1>
 					<div class="vb-cmd">
 						<code
 							><span class="vb-prompt" aria-hidden="true">$</span>composer require <span class="vb-nowrap"
@@ -151,6 +175,7 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 				</div>
 			</section>
 
+			<div class="vb-follow" data-m="C" aria-hidden="true">read the docs</div>
 			<main class="wrap vb-panels">
 				{
 					packages.map((p, i) => (
@@ -183,7 +208,7 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 									))}
 								</p>
 							</div>
-							<figure class="sample vb-sample">
+							<figure class="sample vb-sample" data-href={`/${p.repo}/${newest(p)}/`}>
 								<figcaption>{p.sampleLabel}</figcaption>
 								<Code code={p.sample} lang="php" theme="vitesse-light" />
 							</figure>
@@ -275,18 +300,33 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 		<PrototypeSwitcher />
 
 		<script>
-			// B: the command types each Package's name in turn, like plank.co's rotating hero phrase.
+			// The command types each Package's name in turn, like plank.co's rotating hero phrase.
+			// What moves depends on the motion variant (plank/docs#22):
+			//   A: no typing, no cycling. Picking a tab swaps the name and panel at once.
+			//   B: as plank/docs#7 left it. Types and cycles every ~4 s, panel too, until a tab is picked.
+			//   C: B, but the cycle pauses while the pointer is on the command or the panel, focus is
+			//      inside, or the band is offscreen. Panels settle in; a follower rides the code sample.
+			// Reduced motion, in any variant: no typing, no cycling, no follower.
 			const root = document.querySelector<HTMLElement>('.vb');
 			if (root) {
+				const html = document.documentElement;
+				const motion = () => html.dataset.motion;
+				const ok = () => html.dataset.rm === 'ok';
 				const pkgEl = root.querySelector<HTMLElement>('.vb-pkg')!;
 				const tabs = [...root.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
 				const panels = [...root.querySelectorAll<HTMLElement>('[role="tabpanel"]')];
 				const copy = root.querySelector<HTMLButtonElement>('.vb-copy')!;
-				const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 				const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 				let current = tabs[0].dataset.repo!;
-				let auto = !reduce;
+				let picked = false;
+				let hovering = false;
+				let focused = false;
+				let onscreen = true;
 				let typing = Promise.resolve();
+
+				const cycling = () =>
+					!picked && ok() && motion() !== 'A' && (motion() !== 'C' || (!hovering && !focused && onscreen));
+				const showCycling = () => root.classList.toggle('is-cycling', cycling());
 
 				const select = (repo: string, focus = false) => {
 					current = repo;
@@ -296,38 +336,45 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 						t.tabIndex = on ? 0 : -1;
 						if (on && focus) t.focus();
 					});
-					panels.forEach((p) => (p.hidden = p.id !== `vb-panel-${repo}`));
+					panels.forEach((p) => {
+						const on = p.id === `vb-panel-${repo}`;
+						if (on && p.hidden) {
+							p.classList.remove('is-entering');
+							void p.offsetWidth;
+							p.classList.add('is-entering');
+						}
+						p.hidden = !on;
+					});
 				};
 				const typeTo = async (repo: string) => {
-					if (reduce) return void (pkgEl.textContent = repo);
-					while (pkgEl.textContent!.length) {
+					const instant = () => !ok() || motion() === 'A';
+					while (pkgEl.textContent!.length && !instant()) {
 						pkgEl.textContent = pkgEl.textContent!.slice(0, -1);
 						await sleep(40);
 					}
-					for (const ch of repo) {
-						pkgEl.textContent += ch;
+					while (pkgEl.textContent !== repo && !instant()) {
+						pkgEl.textContent = repo.slice(0, pkgEl.textContent!.length + 1);
 						await sleep(80);
 					}
+					pkgEl.textContent = repo;
 				};
 				const choose = (repo: string, focus = false) => {
 					select(repo, focus);
 					typing = typing.then(() => typeTo(repo));
 				};
+				const pick = (repo: string, focus = false) => {
+					picked = true;
+					showCycling();
+					choose(repo, focus);
+				};
 
-				tabs.forEach((t) =>
-					t.addEventListener('click', () => {
-						auto = false;
-						choose(t.dataset.repo!);
-					}),
-				);
+				tabs.forEach((t) => t.addEventListener('click', () => pick(t.dataset.repo!)));
 				root.querySelector('[role="tablist"]')!.addEventListener('keydown', (e) => {
 					const ke = e as KeyboardEvent;
 					if (ke.key !== 'ArrowLeft' && ke.key !== 'ArrowRight') return;
 					ke.stopPropagation();
-					auto = false;
 					const i = tabs.findIndex((t) => t.dataset.repo === current);
-					const next = tabs[(i + (ke.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
-					choose(next.dataset.repo!, true);
+					pick(tabs[(i + (ke.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length].dataset.repo!, true);
 				});
 				copy.addEventListener('click', async () => {
 					await navigator.clipboard.writeText(`composer require plank/${current}`);
@@ -335,14 +382,75 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 					setTimeout(() => (copy.textContent = 'Copy'), 1600);
 				});
 
+				// C pauses the cycle while the reader is on it.
+				root.querySelectorAll<HTMLElement>('.vb-hero, .vb-panels').forEach((el) => {
+					el.addEventListener('pointerenter', () => {
+						hovering = true;
+						showCycling();
+					});
+					el.addEventListener('pointerleave', () => {
+						hovering = false;
+						showCycling();
+					});
+				});
+				root.addEventListener('focusin', () => {
+					focused = true;
+					showCycling();
+				});
+				root.addEventListener('focusout', () => {
+					focused = false;
+					showCycling();
+				});
+				new IntersectionObserver(([entry]) => {
+					onscreen = entry.isIntersecting;
+					showCycling();
+				}).observe(root.querySelector('.vb-band')!);
+				document.addEventListener('proto:motion', showCycling);
+				document.addEventListener('proto:variant', showCycling);
+				showCycling();
+
 				(async () => {
-					while (auto) {
+					while (!picked) {
 						await sleep(4200);
-						if (!auto) break;
+						if (!cycling()) continue;
 						const i = tabs.findIndex((t) => t.dataset.repo === current);
 						choose(tabs[(i + 1) % tabs.length].dataset.repo!);
 					}
 				})();
+
+				// C: plank.co's lagging cursor follower over the code sample. Clicking the sample opens the docs.
+				const follow = root.querySelector<HTMLElement>('.vb-follow')!;
+				const fine = matchMedia('(pointer: fine)');
+				let fx = 0;
+				let fy = 0;
+				let tx = 0;
+				let ty = 0;
+				let raf = 0;
+				const place = () => (follow.style.translate = `${fx}px ${fy}px`);
+				const tick = () => {
+					fx += (tx - fx) * 0.14;
+					fy += (ty - fy) * 0.14;
+					place();
+					raf = Math.abs(tx - fx) + Math.abs(ty - fy) > 0.5 ? requestAnimationFrame(tick) : 0;
+				};
+				root.querySelectorAll<HTMLElement>('.vb-sample').forEach((fig) => {
+					fig.addEventListener('pointerenter', (e) => {
+						if (motion() !== 'C' || !ok() || !fine.matches) return;
+						fx = tx = e.clientX;
+						fy = ty = e.clientY;
+						place();
+						follow.classList.add('is-on');
+					});
+					fig.addEventListener('pointermove', (e) => {
+						tx = e.clientX;
+						ty = e.clientY;
+						if (!raf && follow.classList.contains('is-on')) raf = requestAnimationFrame(tick);
+					});
+					fig.addEventListener('pointerleave', () => follow.classList.remove('is-on'));
+					fig.addEventListener('click', () => {
+						if (motion() === 'C' && !getSelection()?.toString()) location.href = fig.dataset.href!;
+					});
+				});
 			}
 		</script>
 
@@ -673,16 +781,6 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 				vertical-align: -0.14em;
 				background: var(--plank-coral);
 			}
-			@media (prefers-reduced-motion: no-preference) {
-				.vb-caret {
-					animation: blink 1.1s steps(1) infinite;
-				}
-			}
-			@keyframes blink {
-				50% {
-					opacity: 0;
-				}
-			}
 			.vb-copy {
 				padding: 0.75rem 1.1rem;
 				border: 1.5px solid rgb(255 255 255 / 0.35);
@@ -711,9 +809,6 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 				color: var(--plank-sage);
 				font: 600 1.35rem/1.3 var(--font-display);
 				cursor: pointer;
-				transition:
-					background-size 0.35s var(--ease-out),
-					color 0.2s;
 			}
 			.vb-tabs button:hover,
 			.vb-tabs button[aria-selected='true'] {

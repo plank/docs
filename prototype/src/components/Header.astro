@@ -6,6 +6,7 @@ import Logo from '../assets/plank/logo.svg';
 import LogoWhite from '../assets/plank/logo-white.svg';
 import VersionSwitcher from './VersionSwitcher.astro';
 import PrototypeSwitcher from './PrototypeSwitcher.astro';
+import MotionToggle from './MotionToggle.astro';
 import { packages } from '../data/packages';
 
 const [, repo, major] = Astro.url.pathname.split('/');
@@ -47,6 +48,7 @@ const pkg = packages.find((p) => p.repo === repo);
 				</a>
 			)
 		}
+		<MotionToggle />
 		<ThemeSelect />
 	</div>
 </div>

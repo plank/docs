@@ -43,7 +43,6 @@ html:not([data-variant='C']) [data-v='C'] {
 	color: inherit;
 	text-decoration: none;
 	background: linear-gradient(var(--plank-coral), var(--plank-coral)) no-repeat left bottom / 100% 2px;
-	transition: background-size 0.3s var(--ease-out);
 }
 .plank-link:hover {
 	background-size: 100% 100%;
@@ -74,26 +73,9 @@ html:not([data-variant='C']) [data-v='C'] {
 	stroke-linecap: round;
 	stroke-linejoin: round;
 	transform-origin: left center;
-	transition: transform 0.3s var(--ease-out);
 }
-.plank-button:hover svg,
-.plank-button:focus-visible svg {
-	transform: scaleX(1.35);
-}
-@media (prefers-reduced-motion: no-preference) {
-	.plank-button:hover span {
-		animation: plank-wobble 1.6s ease;
-	}
-}
-@keyframes plank-wobble {
-	0% { transform: translateY(0); }
-	15% { transform: translateY(-25%); }
-	30% { transform: translateY(20%); }
-	45% { transform: translateY(-15%); }
-	60% { transform: translateY(10%); }
-	75% { transform: translateY(-5%); }
-	100% { transform: translateY(0); }
-}
+/* Every transition and animation (the fills, the arrow's stretch, the label's wobble) lives in
+   motion.css, per motion variant (plank/docs#22). */
 
 :focus-visible {
 	outline: 2px solid var(--plank-teal);

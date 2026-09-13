@@ -1,19 +1,23 @@
 ---
-// PROTOTYPE chrome, not part of any design: cycles ?variant= with the arrows or ←/→.
+// PROTOTYPE chrome, not part of any design: cycles the motion variant (?variant=) with the arrows or ←/→,
+// and simulates the OS reduced-motion setting so its path can be seen without System Settings.
 // Rendered by the dev server only, so a stray build can't ship it.
 const show = import.meta.env.DEV;
 ---
 
 {
 	show && (
-		<div class="proto-bar" role="toolbar" aria-label="Prototype variant switcher">
-			<button type="button" data-dir="-1" aria-label="Previous variant">
+		<div class="proto-bar" role="toolbar" aria-label="Prototype motion switcher">
+			<button type="button" data-dir="-1" aria-label="Previous motion variant">
 				<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" /></svg>
 			</button>
 			<span class="proto-label" aria-live="polite" />
-			<button type="button" data-dir="1" aria-label="Next variant">
+			<button type="button" data-dir="1" aria-label="Next motion variant">
 				<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>
 			</button>
+			<span class="proto-sep" aria-hidden="true" />
+			<button type="button" class="proto-os" title="Simulate the OS reduced-motion setting" />
+			<span class="proto-state" aria-live="polite" />
 			<span class="proto-sep" aria-hidden="true" />
 			<a href="/">Landing</a>
 			<a href="/publisher/13.x/guides/installation/">Doc page</a>
@@ -24,36 +28,56 @@ const show = import.meta.env.DEV;
 <script>
 	const bar = document.querySelector<HTMLElement>('.proto-bar');
 	if (bar) {
+		const html = document.documentElement;
+		const plankMotion = () => (window as unknown as { plankMotion: () => void }).plankMotion();
 		const variants = [
-			{ key: 'A', name: 'Major Line matrix' },
-			{ key: 'B', name: 'composer require' },
-			{ key: 'C', name: 'plank.co editorial' },
+			{ key: 'A', name: 'Still' },
+			{ key: 'B', name: 'As chosen' },
+			{ key: 'C', name: 'plank.co in full' },
+		];
+		const osModes = [
+			{ key: 'follow', label: 'OS setting: yours' },
+			{ key: 'reduce', label: 'OS setting: reduce' },
+			{ key: 'none', label: 'OS setting: no preference' },
 		];
 		const label = bar.querySelector<HTMLElement>('.proto-label')!;
-		const current = () => Math.max(0, variants.findIndex((v) => v.key === document.documentElement.dataset.variant));
+		const os = bar.querySelector<HTMLButtonElement>('.proto-os')!;
+		const state = bar.querySelector<HTMLElement>('.proto-state')!;
+		const current = () => Math.max(0, variants.findIndex((v) => v.key === html.dataset.motion));
 		const render = () => {
 			const v = variants[current()];
 			label.textContent = `${v.key} · ${v.name}`;
+			os.textContent = (osModes.find((m) => m.key === html.dataset.os) ?? osModes[0]).label;
+			state.textContent =
+				html.dataset.rm === 'ok'
+					? 'Motion: full'
+					: `Motion: reduced by ${html.dataset.rmWhy === 'os' ? 'the OS' : 'the site toggle'}`;
 		};
 		const go = (dir: number) => {
 			const v = variants[(current() + dir + variants.length) % variants.length];
-			document.documentElement.dataset.variant = v.key;
-			try { sessionStorage.setItem('proto-variant', v.key); } catch {}
+			html.dataset.motion = v.key;
+			try { sessionStorage.setItem('proto-motion', v.key); } catch {}
 			const url = new URL(location.href);
 			url.searchParams.set('variant', v.key);
 			history.replaceState(null, '', url);
-			render();
+			plankMotion();
 			document.dispatchEvent(new CustomEvent('proto:variant', { detail: v.key }));
 		};
 		bar.querySelectorAll<HTMLButtonElement>('button[data-dir]').forEach((b) =>
 			b.addEventListener('click', () => go(Number(b.dataset.dir))),
 		);
+		os.addEventListener('click', () => {
+			const i = osModes.findIndex((m) => m.key === html.dataset.os);
+			try { sessionStorage.setItem('proto-os', osModes[(i + 1) % osModes.length].key); } catch {}
+			plankMotion();
+		});
 		document.addEventListener('keydown', (e) => {
 			const t = e.target as HTMLElement;
 			if (t.closest('input, textarea, select, [contenteditable]') || e.metaKey || e.ctrlKey || e.altKey) return;
 			if (e.key === 'ArrowLeft') go(-1);
 			if (e.key === 'ArrowRight') go(1);
 		});
+		document.addEventListener('proto:motion', render);
 		render();
 	}
 </script>
@@ -106,8 +130,15 @@ const show = import.meta.env.DEV;
 		stroke-linejoin: round;
 	}
 	.proto-label {
-		min-width: 11.5rem;
+		min-width: 9.5rem;
 		text-align: center;
+	}
+	.proto-os {
+		background: rgb(255 255 255 / 0.1) !important;
+	}
+	.proto-state {
+		padding: 0 0.5rem;
+		color: rgb(255 255 255 / 0.7);
 	}
 	.proto-sep {
 		width: 1px;
@@ -115,11 +146,13 @@ const show = import.meta.env.DEV;
 		background: rgb(255 255 255 / 0.25);
 		margin: 0 0.25rem;
 	}
-	@media (max-width: 30rem) {
+	@media (max-width: 48rem) {
 		.proto-label {
 			min-width: 0;
 		}
-		.proto-bar a {
+		.proto-bar a,
+		.proto-state,
+		.proto-sep {
 			display: none;
 		}
 	}

@@ -1,22 +1,49 @@
 ---
-// PROTOTYPE: picks the variant before first paint. The URL is the source of truth; sessionStorage
-// carries it across links that don't repeat ?variant=, and the URL is rewritten so it stays shareable.
+// PROTOTYPE for plank/docs#22, run before first paint.
+// - The design is settled by plank/docs#7 (landing B, doc page A), so data-variant is fixed.
+// - ?variant=A|B|C picks the motion variant (data-motion). The URL is the source of truth;
+//   sessionStorage carries it across links, and the URL is rewritten so it stays shareable.
+// - plankMotion() works out data-rm ("ok" or "reduce") from the OS setting, or the bar's simulation
+//   of it, and in C only from the site's own toggle. Everything in motion.css keys off these.
 ---
 
 <script is:inline>
 	(() => {
+		const root = document.documentElement;
 		const keys = ['A', 'B', 'C'];
 		const url = new URL(location.href);
 		let v = (url.searchParams.get('variant') || '').toUpperCase();
 		if (!keys.includes(v)) {
-			try { v = sessionStorage.getItem('proto-variant') || ''; } catch {}
+			try { v = sessionStorage.getItem('proto-motion') || ''; } catch {}
 		}
-		if (!keys.includes(v)) v = 'A';
-		document.documentElement.dataset.variant = v;
-		try { sessionStorage.setItem('proto-variant', v); } catch {}
+		if (!keys.includes(v)) v = 'B';
+		root.dataset.motion = v;
+		root.dataset.variant = location.pathname === '/' ? 'B' : 'A';
+		try { sessionStorage.setItem('proto-motion', v); } catch {}
 		if (url.searchParams.get('variant') !== v) {
 			url.searchParams.set('variant', v);
 			history.replaceState(null, '', url);
 		}
+
+		const osQuery = matchMedia('(prefers-reduced-motion: reduce)');
+		window.plankMotion = () => {
+			let sim = 'follow';
+			let site = false;
+			try { sim = sessionStorage.getItem('proto-os') || 'follow'; } catch {}
+			try { site = localStorage.getItem('plank-reduce-motion') === 'true'; } catch {}
+			const os = sim === 'reduce' || (sim === 'follow' && osQuery.matches);
+			const why = os ? 'os' : site && root.dataset.motion === 'C' ? 'site' : '';
+			root.dataset.os = sim;
+			root.dataset.rm = why ? 'reduce' : 'ok';
+			root.dataset.rmWhy = why;
+			document.dispatchEvent(new CustomEvent('proto:motion'));
+		};
+		osQuery.addEventListener('change', window.plankMotion);
+		window.plankMotion();
+
+		// Cross-document view transitions are declared in motion.css; only C, with motion allowed, keeps them.
+		const keep = () => root.dataset.motion === 'C' && root.dataset.rm === 'ok';
+		addEventListener('pageswap', (e) => { if (e.viewTransition && !keep()) e.viewTransition.skipTransition(); });
+		addEventListener('pagereveal', (e) => { if (e.viewTransition && !keep()) e.viewTransition.skipTransition(); });
 	})();
 </script>

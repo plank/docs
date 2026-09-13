@@ -1,7 +1,8 @@
 // @ts-check
-// PROTOTYPE for plank/docs#7 "What do the landing page and a doc page look like?" — throwaway.
-// Three variants of the landing page and a doc page, switchable via ?variant=A|B|C on `/` and on
-// every doc page. One build holds two Packages' 13.x docs; a real Docs Version is one Package, one build.
+// PROTOTYPE for plank/docs#22 "What moves on the Docs Site, and how does it respect reduced motion?" —
+// throwaway, built on plank/docs#7's prototype with its chosen design (landing B, doc page A) held fixed.
+// Three motion variants, switchable via ?variant=A|B|C on `/` and on every doc page (see motion.css).
+// One build holds two Packages' 13.x docs; a real Docs Version is one Package, one build.
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
@@ -18,6 +19,7 @@ export default defineConfig({
 				'@fontsource-variable/instrument-sans',
 				'./src/styles/tokens.css',
 				'./src/styles/docs.css',
+				'./src/styles/motion.css',
 			],
 			components: {
 				Head: './src/components/Head.astro',

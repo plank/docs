@@ -57,7 +57,6 @@ h1#_top {
 	color: var(--sl-color-white);
 	text-decoration: none;
 	background: linear-gradient(var(--plank-coral), var(--plank-coral)) no-repeat left bottom / 100% 2px;
-	transition: background-size 0.3s var(--ease-out), color 0.3s;
 }
 .sl-markdown-content a:not(:where(.not-content *)):hover {
 	background-size: 100% 100%;

@@ -1,0 +1,255 @@
+/* PROTOTYPE for plank/docs#22 "What moves on the Docs Site, and how does it respect reduced motion?"
+   Three motion variants, switchable via ?variant=A|B|C. Every rule is gated on <html data-motion>
+   (the variant) and <html data-rm> ("ok" or "reduce"), which VariantBoot works out from the OS
+   setting, the bar's OS simulation and, in C only, the site's own toggle.
+
+   A · Still: motion only answers the reader. Nothing moves on its own.
+   B · As chosen: exactly what plank/docs#7's prototype left, gaps included.
+   C · plank.co in full: plank.co's page moments too, and its reduced-motion toggle. */
+
+/* Pieces only C has. */
+html:not([data-motion='C']) [data-m='C'] {
+	display: none !important;
+}
+
+/* ---------- Links and tabs: the coral rule fills on hover ---------- */
+/* A: a quick fill, instant under reduced motion. B: 0.3s either way. C: plank.co's 0.3s, instant under reduced motion. */
+html[data-motion='A'][data-rm='ok'] :is(.plank-link, .sl-markdown-content a:not(:where(.not-content *)), .vb-tabs button) {
+	transition:
+		background-size 0.15s var(--ease-out),
+		color 0.15s;
+}
+html[data-motion='B'] :is(.plank-link, .sl-markdown-content a:not(:where(.not-content *)), .vb-tabs button),
+html[data-motion='C'][data-rm='ok'] :is(.plank-link, .sl-markdown-content a:not(:where(.not-content *)), .vb-tabs button) {
+	transition:
+		background-size 0.3s var(--ease-out),
+		color 0.3s;
+}
+
+/* ---------- plank.co's button: the arrow stretches, the label wobbles ---------- */
+/* A: neither. B: stretch always, wobble unless reduced. C: both, neither when reduced. */
+html[data-motion='B'] .plank-button svg,
+html[data-motion='C'][data-rm='ok'] .plank-button svg {
+	transition: transform 0.3s var(--ease-out);
+}
+html[data-motion='B'] .plank-button:is(:hover, :focus-visible) svg,
+html[data-motion='C'][data-rm='ok'] .plank-button:is(:hover, :focus-visible) svg {
+	transform: scaleX(1.35);
+}
+html[data-motion='B'][data-rm='ok'] .plank-button:hover span,
+html[data-motion='C'][data-rm='ok'] .plank-button:hover span {
+	animation: plank-wobble 1.6s ease;
+}
+/* plank.co's own `wobble` keyframes (themes/plank/assets/css/03-base/_animations.scss). */
+@keyframes plank-wobble {
+	0% { transform: translateY(0); }
+	15% { transform: translateY(-25%); }
+	30% { transform: translateY(20%); }
+	45% { transform: translateY(-15%); }
+	60% { transform: translateY(10%); }
+	75% { transform: translateY(-5%); }
+	100% { transform: translateY(0); }
+}
+
+/* ---------- Landing: the command's caret ---------- */
+/* A: steady. B: blinks forever. C: blinks only while the names are cycling. */
+html[data-motion='B'][data-rm='ok'] .vb-caret,
+html[data-motion='C'][data-rm='ok'] .vb.is-cycling .vb-caret {
+	animation: blink 1.1s steps(1) infinite;
+}
+@keyframes blink {
+	50% { opacity: 0; }
+}
+
+/* ---------- Landing, C: the band's entrance (plank.co's word slide-up, then a drawn line) ---------- */
+.vb-hero h1 .w {
+	display: inline-block;
+}
+.vb-hero h1 .w > span {
+	display: inline-block;
+}
+.w-mark {
+	position: relative;
+	display: inline-block;
+}
+.vb-squiggle {
+	position: absolute;
+	left: 0;
+	bottom: -0.22em;
+	width: 100%;
+	height: 0.32em;
+	overflow: visible;
+}
+.vb-squiggle path {
+	vector-effect: non-scaling-stroke;
+	stroke-width: 3px;
+}
+html[data-motion='C'][data-rm='ok'] .vb-hero h1 .w {
+	overflow: clip;
+	padding-bottom: 0.14em;
+	margin-bottom: -0.14em;
+	vertical-align: top;
+}
+html[data-motion='C'][data-rm='ok'] .vb-hero h1 .w > span {
+	animation: word-rise 0.8s calc(var(--i) * 70ms) var(--ease-out) both;
+}
+html[data-motion='C'][data-rm='ok'] .vb-squiggle path {
+	stroke-dasharray: 1;
+	stroke-dashoffset: 1;
+	animation: draw 1s 0.7s var(--ease-out) forwards;
+}
+html[data-motion='C'][data-rm='ok'] :is(.vb-cmd, .vb-tabs) {
+	animation: fade-rise 0.7s var(--d, 0s) var(--ease-out) both;
+}
+.vb-cmd {
+	--d: 0.45s;
+}
+.vb-tabs {
+	--d: 0.6s;
+}
+@keyframes word-rise {
+	from { translate: 0 110%; }
+}
+@keyframes draw {
+	to { stroke-dashoffset: 0; }
+}
+@keyframes fade-rise {
+	from { opacity: 0; translate: 0 0.75rem; }
+}
+
+/* ---------- Landing, C: the band's shape turns as the page scrolls (plank.co's ScrollTrigger scrub) ---------- */
+@supports (animation-timeline: scroll()) {
+	html[data-motion='C'][data-rm='ok'] .vb-shape {
+		animation: shape-drift linear both;
+		animation-timeline: scroll(root);
+		animation-range: 0 100vh;
+	}
+}
+@keyframes shape-drift {
+	to { rotate: 10deg; translate: -3rem -4rem; scale: 1.15; }
+}
+
+/* ---------- Landing, C: a new tab's panel settles in ---------- */
+html[data-motion='C'][data-rm='ok'] .vb-panel.is-entering > div {
+	animation: fade-rise 0.45s var(--ease-out) both;
+}
+html[data-motion='C'][data-rm='ok'] .vb-panel.is-entering .vb-sample {
+	animation: sample-in 0.7s 0.05s var(--ease-out) both;
+}
+@keyframes sample-in {
+	from { opacity: 0; rotate: -1.5deg; translate: 0 1.5rem; }
+}
+
+/* ---------- Landing, C: plank.co's lagging cursor follower, over the code sample ---------- */
+.vb-follow {
+	position: fixed;
+	z-index: 5;
+	left: 0;
+	top: 0;
+	display: grid;
+	place-items: center;
+	width: 7.5rem;
+	height: 7.5rem;
+	margin: -3.75rem 0 0 -3.75rem;
+	border-radius: 50%;
+	background: var(--plank-coral);
+	color: var(--plank-ink);
+	font: 500 1.1rem/1.1 var(--font-display);
+	text-align: center;
+	pointer-events: none;
+	scale: 0;
+	opacity: 0;
+	transition:
+		scale 0.2s 0.1s var(--ease-out),
+		opacity 0.3s;
+}
+.vb-follow.is-on {
+	scale: 1;
+	opacity: 1;
+}
+html[data-motion='C'] .vb-sample {
+	cursor: pointer;
+}
+
+/* ---------- Doc pages, C: moving between pages keeps the header and sidebar still ---------- */
+@view-transition {
+	navigation: auto;
+}
+html[data-motion='C'] header.header {
+	view-transition-name: ph-header;
+}
+html[data-motion='C'] .sidebar-pane {
+	view-transition-name: ph-sidebar;
+}
+html[data-motion='C'] .main-frame {
+	view-transition-name: ph-main;
+}
+::view-transition-old(ph-main) {
+	animation: 0.15s ease-in both vt-out;
+}
+::view-transition-new(ph-main) {
+	animation: 0.35s cubic-bezier(0.16, 1, 0.3, 1) both vt-in;
+}
+@keyframes vt-out {
+	to { opacity: 0; }
+}
+@keyframes vt-in {
+	from { opacity: 0; translate: 0 0.5rem; }
+}
+
+/* ---------- Doc pages, C: smooth in-page jumps, and the other Major Lines fade in ---------- */
+html[data-motion='C'][data-rm='ok'] {
+	scroll-behavior: smooth;
+}
+html[data-motion='C'][data-rm='ok'] .pv-seg li:not(:has([aria-current])) {
+	animation: fade-in 0.3s var(--ease-out) both;
+}
+@keyframes fade-in {
+	from { opacity: 0; }
+}
+
+/* ---------- C: the site's own reduced-motion toggle ---------- */
+.top nav {
+	align-items: center;
+}
+.pm-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+	padding: 0.35rem 0.7rem;
+	border: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+	border-radius: 999px;
+	background: transparent;
+	color: inherit;
+	font: 500 0.8rem/1 var(--font-body);
+	letter-spacing: 0;
+	white-space: nowrap;
+	cursor: pointer;
+}
+.pm-toggle::before {
+	content: '';
+	width: 0.55rem;
+	height: 0.55rem;
+	border: 1.5px solid currentColor;
+	border-radius: 50%;
+}
+.pm-toggle[aria-pressed='true'] {
+	border-color: var(--plank-coral);
+	background: var(--plank-coral);
+	color: var(--plank-ink);
+}
+.pm-toggle[aria-pressed='true']::before {
+	background: currentColor;
+}
+.pm-toggle:disabled {
+	cursor: not-allowed;
+	opacity: 0.75;
+}
+/* On phones the label is hidden visually but still read out, leaving the dot. */
+@media (max-width: 40rem) {
+	.pm-toggle {
+		gap: 0;
+		padding: 0.45rem;
+		font-size: 0;
+	}
+}
