@@ -6,7 +6,7 @@ A router run in `plank/docs` reads those files. It's scheduled at most daily and
 
 1. lists the `plank` org's public, non-archived repos with no GitHub token, and reads each one's Docs Config;
 2. routes only the Docs Versions that are both listed and deployed as a `docs-<repo>-<major>` Worker;
-3. redeploys the router only when that list has changed: its Service bindings, the landing page, `404.html` and `/versions.json`;
+3. redeploys the router only when that list has changed: its Service bindings, the landing page, `404.html`, `/versions.json`, `robots.txt` and `/sitemap-index.xml`;
 4. then deletes the Docs Version Workers it no longer routes.
 
 The User chose this on 2026-09-12 in [How do the landing page and version switcher learn which Packages and Docs Versions exist?](https://github.com/plank/docs/issues/11), and set that a private repo never has published docs.
@@ -34,6 +34,7 @@ The User chose this on 2026-09-12 in [How do the landing page and version switch
 - **The Docs Config on `main` decides both what the Docs Tooling builds and what the router routes.** The Docs Tooling refuses to build a Major Line the Docs Config doesn't list.
 - **Paths come from repo names.** A Package's path is its repo name (`packages.plank.co/<repo>`), so renaming a repo moves its path.
 - **The newest Docs Version** is the highest routed Major Line, compared as numbers.
+- **Search engines index only each Package's newest Docs Version.** The router adds `X-Robots-Tag: noindex` to every response from an older Docs Version. Its `/sitemap-index.xml`, named in its `robots.txt`, lists the landing page and each newest Docs Version's `sitemap-0.xml`. Both follow the routed list, so an older Docs Version drops out of search with no rebuild when a new Major Line goes live. Decided on 2026-09-13 in [How do search engines see the Docs Site's Docs Versions?](https://github.com/plank/docs/issues/26).
 - **The list is read at runtime.** The landing page and version switchers read `/versions.json`. The router serves it as a static file excluded from its Function.
 - **Changes wait for the next router run.** Until then a new Docs Version 404s, and a Package made private or archived stays live. That's up to about a day, unless someone runs it by hand.
 - **Keeping private repos off the Docs Site takes three guards besides discovery:**
