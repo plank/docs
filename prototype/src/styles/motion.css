@@ -208,48 +208,4 @@ html[data-motion='C'][data-rm='ok'] .pv-seg li:not(:has([aria-current])) {
 	from { opacity: 0; }
 }
 
-/* ---------- C: the site's own reduced-motion toggle ---------- */
-.top nav {
-	align-items: center;
-}
-.pm-toggle {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.45rem;
-	padding: 0.35rem 0.7rem;
-	border: 1px solid color-mix(in srgb, currentColor 40%, transparent);
-	border-radius: 999px;
-	background: transparent;
-	color: inherit;
-	font: 500 0.8rem/1 var(--font-body);
-	letter-spacing: 0;
-	white-space: nowrap;
-	cursor: pointer;
-}
-.pm-toggle::before {
-	content: '';
-	width: 0.55rem;
-	height: 0.55rem;
-	border: 1.5px solid currentColor;
-	border-radius: 50%;
-}
-.pm-toggle[aria-pressed='true'] {
-	border-color: var(--plank-coral);
-	background: var(--plank-coral);
-	color: var(--plank-ink);
-}
-.pm-toggle[aria-pressed='true']::before {
-	background: currentColor;
-}
-.pm-toggle:disabled {
-	cursor: not-allowed;
-	opacity: 0.75;
-}
-/* On phones the label is hidden visually but still read out, leaving the dot. */
-@media (max-width: 40rem) {
-	.pm-toggle {
-		gap: 0;
-		padding: 0.45rem;
-		font-size: 0;
-	}
-}
+/* The site's own reduced-motion setting lives in A11yFloat.astro (landing page) and A11yMenu.astro (doc pages). */

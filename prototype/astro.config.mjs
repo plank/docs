@@ -25,6 +25,8 @@ export default defineConfig({
 				Head: './src/components/Head.astro',
 				Header: './src/components/Header.astro',
 				Sidebar: './src/components/Sidebar.astro',
+				// The theme and reduced-motion menu, so it's also in the phone menu drawer's footer.
+				ThemeSelect: './src/components/A11yMenu.astro',
 			},
 			routeMiddleware: './src/routeData.ts',
 			expressiveCode: {

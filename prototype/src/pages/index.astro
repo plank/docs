@@ -8,7 +8,7 @@ import '../styles/tokens.css';
 import '../styles/motion.css';
 import { Code } from 'astro:components';
 import VariantBoot from '../components/VariantBoot.astro';
-import MotionToggle from '../components/MotionToggle.astro';
+import A11yFloat from '../components/A11yFloat.astro';
 import PrototypeSwitcher from '../components/PrototypeSwitcher.astro';
 import Arrow from '../components/Arrow.astro';
 import Logo from '../assets/plank/logo.svg';
@@ -121,7 +121,6 @@ const headline = 'Open-source Laravel packages from'.split(' ');
 						<span class="sr-only">Plank Packages</span>
 					</a>
 					<nav aria-label="Elsewhere">
-						<MotionToggle />
 						<a class="plank-link" href="https://github.com/plank">GitHub</a>
 						<a class="plank-link" href="https://plank.co">plank.co</a>
 					</nav>
@@ -297,6 +296,7 @@ const headline = 'Open-source Laravel packages from'.split(' ');
 			</footer>
 		</div>
 
+		<A11yFloat />
 		<PrototypeSwitcher />
 
 		<script>

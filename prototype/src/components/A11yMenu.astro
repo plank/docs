@@ -1,0 +1,311 @@
+---
+// PROTOTYPE (plank/docs#22): the doc pages' display menu. The User asked on 2026-09-13 for the theme and
+// the reduced-motion setting in one dropdown, each under its own sub-heading, opened by plank.co's
+// accessibility icon. It replaces plank/docs#19's one-click theme toggle on doc pages.
+// It overrides Starlight's ThemeSelect, so it sits in the header on desktop and in the menu drawer's
+// footer on phones, where Starlight puts its select.
+// - Theme: Light or Dark, stored under Starlight's own key, `starlight-theme`, so Starlight's inline
+//   script still sets it before first paint. Until a reader picks, the system theme is followed.
+// - Motion: plank.co's switch. It can only reduce: when the OS asks for reduced motion, it shows on, locked.
+import { Icon } from '@astrojs/starlight/components';
+
+const id = `pm-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<div class="pm">
+	<button type="button" class="pm-trigger" aria-expanded="false" aria-controls={id} aria-label="Theme and motion">
+		<svg viewBox="0 0 34 32" aria-hidden="true">
+			<path
+				fill="currentColor"
+				d="M10.1403 2.03609L9.85265 1.50155L9.85256 1.5016L10.1403 2.03609ZM1.08139 17.7333L1.68469 17.6663L1.68466 17.666L1.08139 17.7333ZM21.8815 30.5445L22.0328 31.1323L22.0329 31.1323L21.8815 30.5445ZM20.326 1.32397L20.423 0.724745L20.4227 0.724708L20.326 1.32397ZM19.9284 15.5163L19.8945 14.9102C19.5729 14.9282 19.3214 15.1942 19.3214 15.5163H19.9284ZM24.0156 15.1012L24.1424 15.6948L24.1424 15.6948L24.0156 15.1012ZM24.8559 13.4289L24.2876 13.6419L24.2876 13.642L24.8559 13.4289ZM23.0459 12.5144L23.17 13.1086L23.17 13.1086L23.0459 12.5144ZM10.8984 12.5144L11.0226 11.9202L11.0225 11.9202L10.8984 12.5144ZM9.08833 13.4289L8.51996 13.2157L8.51995 13.2157L9.08833 13.4289ZM9.92872 15.1012L10.0555 14.5076L10.0554 14.5075L9.92872 15.1012ZM14.0156 15.5163H14.6226C14.6226 15.1942 14.371 14.9282 14.0495 14.9102L14.0156 15.5163ZM14.0382 19.0893L14.6318 19.2161C14.6479 19.1407 14.6495 19.0629 14.6365 18.9868L14.0382 19.0893ZM13.0944 23.5042L13.688 23.6311L13.688 23.6311L13.0944 23.5042ZM15.7305 24.0661L15.1367 23.9399L15.1367 23.9399L15.7305 24.0661ZM16.5102 20.3984V19.7913C16.2236 19.7913 15.976 19.9918 15.9164 20.2721L16.5102 20.3984ZM17.434 20.3984L18.0277 20.2721C17.9681 19.9918 17.7206 19.7913 17.434 19.7913V20.3984ZM18.2137 24.0661L18.8075 23.9399L18.8075 23.9399L18.2137 24.0661ZM20.8497 23.5042L21.4433 23.3773L21.4433 23.3773L20.8497 23.5042ZM19.9058 19.089L19.3075 18.9865C19.2945 19.0626 19.2961 19.1404 19.3122 19.2159L19.9058 19.089ZM9.85256 1.5016C2.68693 5.35896 -0.151776 12.1525 0.47811 17.8006L1.68466 17.666C1.11044 12.5171 3.69256 6.19637 10.428 2.57058L9.85256 1.5016ZM0.478081 17.8003C1.0264 22.7364 4.30766 26.6221 8.45857 28.9867C12.6051 31.3487 17.7057 32.2458 22.0328 31.1323L21.7302 29.9566C17.755 30.9795 12.9768 30.1633 9.05948 27.9318C5.14651 25.7028 2.17884 22.1148 1.68469 17.6663L0.478081 17.8003ZM22.0329 31.1323C30.3531 28.9899 34.0221 22.0223 33.5698 15.2968C33.1183 8.58384 28.5559 2.04082 20.423 0.724745L20.229 1.92319C27.7236 3.13597 31.9391 9.14322 32.3585 15.3783C32.777 21.6008 29.41 27.9791 21.7301 29.9566L22.0329 31.1323ZM20.4227 0.724708C19.239 0.53363 17.3158 0.353035 15.3467 0.400728C13.4006 0.447864 11.3068 0.719092 9.85265 1.50155L10.4279 2.57063C11.6163 1.93119 13.4651 1.66069 15.3761 1.6144C17.2641 1.56867 19.1125 1.74296 20.2293 1.92322L20.4227 0.724708ZM14.2482 8.11754C14.2482 8.84012 14.5352 9.5331 15.0462 10.044L15.9046 9.18559C15.6214 8.90233 15.4622 8.51814 15.4622 8.11754H14.2482ZM15.0462 10.044C15.5571 10.555 16.2501 10.842 16.9727 10.842V9.62799C16.5721 9.62799 16.1879 9.46886 15.9046 9.18559L15.0462 10.044ZM16.9727 10.842C17.6953 10.842 18.3882 10.555 18.8992 10.044L18.0407 9.18559C17.7575 9.46886 17.3733 9.62799 16.9727 9.62799V10.842ZM18.8992 10.044C19.4101 9.5331 19.6972 8.84012 19.6972 8.11754H18.4831C18.4831 8.51813 18.324 8.90233 18.0407 9.18559L18.8992 10.044ZM19.6972 8.11754C19.6972 7.39496 19.4101 6.70197 18.8992 6.19103L18.0407 7.04948C18.324 7.33275 18.4831 7.71694 18.4831 8.11754H19.6972ZM18.8992 6.19103C18.3882 5.68009 17.6953 5.39305 16.9727 5.39305V6.60708C17.3733 6.60708 17.7575 6.76622 18.0407 7.04948L18.8992 6.19103ZM16.9727 5.39305C16.2501 5.39305 15.5571 5.68009 15.0462 6.19103L15.9046 7.04948C16.1879 6.76622 16.5721 6.60708 16.9727 6.60708V5.39305ZM15.0462 6.19103C14.5352 6.70198 14.2482 7.39496 14.2482 8.11754H15.4622C15.4622 7.71694 15.6214 7.33275 15.9046 7.04948L15.0462 6.19103ZM20.5354 18.8217V15.5163H19.3214V18.8217H20.5354ZM19.9623 16.1224C21.2705 16.0492 22.7503 15.9921 24.1424 15.6948L23.8888 14.5076C22.6105 14.7806 21.2419 14.8349 19.8945 14.9102L19.9623 16.1224ZM24.1424 15.6948C25.3072 15.446 25.8009 14.2198 25.4243 13.2157L24.2876 13.642C24.4461 14.0647 24.2144 14.438 23.8888 14.5076L24.1424 15.6948ZM25.4243 13.2158C25.0338 12.174 23.9079 11.7141 22.9217 11.9202L23.17 13.1086C23.6756 13.0029 24.1432 13.2568 24.2876 13.6419L25.4243 13.2158ZM22.9217 11.9202C21.0401 12.3133 18.8923 12.2306 16.9722 12.2306V13.4446C18.811 13.4446 21.131 13.5345 23.17 13.1086L22.9217 11.9202ZM16.9722 12.2306C15.052 12.2306 12.9042 12.3133 11.0226 11.9202L10.7743 13.1086C12.8133 13.5346 15.1333 13.4446 16.9722 13.4446V12.2306ZM11.0225 11.9202C10.0363 11.7142 8.91061 12.174 8.51996 13.2157L9.65669 13.642C9.80114 13.2568 10.2688 13.003 10.7743 13.1086L11.0225 11.9202ZM8.51995 13.2157C8.14345 14.2199 8.63711 15.4462 9.80201 15.6948L10.0554 14.5075C9.73 14.4381 9.49812 14.0649 9.6567 13.642L8.51995 13.2157ZM9.80193 15.6948C11.1939 15.9921 12.6735 16.0492 13.9817 16.1224L14.0495 14.9102C12.7022 14.8349 11.3338 14.7806 10.0555 14.5076L9.80193 15.6948ZM13.4086 15.5163V18.8217H14.6226V15.5163H13.4086ZM13.4086 18.8217C13.4086 18.9473 13.4192 19.071 13.4399 19.1917L14.6365 18.9868C14.6274 18.9337 14.6226 18.8785 14.6226 18.8217H13.4086ZM13.4446 18.9624L12.5008 23.3773L13.688 23.6311L14.6318 19.2161L13.4446 18.9624ZM12.5008 23.3773C12.2408 24.5938 13.1682 25.7406 14.4123 25.7406V24.5266C13.941 24.5266 13.5895 24.092 13.688 23.6311L12.5008 23.3773ZM14.4123 25.7406C15.3352 25.7406 16.1323 25.095 16.3242 24.1923L15.1367 23.9399C15.064 24.2819 14.7619 24.5266 14.4123 24.5266V25.7406ZM16.3242 24.1924L17.1039 20.5246L15.9164 20.2721L15.1367 23.9399L16.3242 24.1924ZM16.5102 21.0054H17.434V19.7913H16.5102V21.0054ZM16.8402 20.5246L17.62 24.1924L18.8075 23.9399L18.0277 20.2721L16.8402 20.5246ZM17.62 24.1923C17.8118 25.095 18.609 25.7406 19.5319 25.7406V24.5266C19.1822 24.5266 18.8802 24.2819 18.8075 23.9399L17.62 24.1923ZM19.5319 25.7406C20.776 25.7406 21.7034 24.5938 21.4433 23.3773L20.2561 23.6311C20.3547 24.0921 20.0032 24.5266 19.5319 24.5266V25.7406ZM21.4433 23.3773L20.4994 18.9621L19.3122 19.2159L20.2561 23.6311L21.4433 23.3773ZM20.5041 19.1915C20.5249 19.0706 20.5354 18.9469 20.5354 18.8217H19.3214C19.3214 18.8786 19.3166 18.9337 19.3075 18.9865L20.5041 19.1915Z"
+			></path>
+		</svg>
+	</button>
+	<div class="pm-menu" id={id} hidden>
+		<fieldset class="pm-group">
+			<legend class="pm-heading">Theme</legend>
+			<div class="pm-seg">
+				<label><input type="radio" name={`${id}-theme`} value="light" /><Icon name="sun" size="1rem" />Light</label>
+				<label><input type="radio" name={`${id}-theme`} value="dark" /><Icon name="moon" size="1rem" />Dark</label>
+			</div>
+		</fieldset>
+		<div class="pm-group">
+			<p class="pm-heading">Motion</p>
+			<div class="pm-row">
+				<span id={`${id}-rm`}>Reduced motion</span>
+				<span class="pm-status" aria-hidden="true">off</span>
+				<button
+					type="button"
+					class="pm-switch"
+					role="switch"
+					aria-checked="false"
+					aria-labelledby={`${id}-rm`}
+					aria-describedby={`${id}-note`}
+				>
+					<svg viewBox="0 0 40 19" aria-hidden="true">
+						<rect class="pm-track" x="0.5" y="0.5" width="39" height="18" rx="9"></rect>
+						<circle class="pm-knob" cx="11.5" cy="9.5" r="7.5"></circle>
+					</svg>
+				</button>
+			</div>
+			<p class="pm-note" id={`${id}-note`} hidden>Your system asks for reduced motion.</p>
+		</div>
+	</div>
+</div>
+
+<script>
+	const html = document.documentElement;
+	const menus = [...document.querySelectorAll<HTMLElement>('.pm')];
+	const plankMotion = () => (window as unknown as { plankMotion: () => void }).plankMotion();
+	const siteSetting = () => {
+		try {
+			return localStorage.getItem('plank-reduce-motion') === 'true';
+		} catch {
+			return false;
+		}
+	};
+	const sync = () =>
+		menus.forEach((m) => {
+			const theme = html.dataset.theme === 'light' ? 'light' : 'dark';
+			m.querySelectorAll<HTMLInputElement>('input[type="radio"]').forEach((r) => (r.checked = r.value === theme));
+			const os = html.dataset.rmWhy === 'os';
+			const on = os || siteSetting();
+			const toggle = m.querySelector<HTMLButtonElement>('.pm-switch')!;
+			toggle.setAttribute('aria-checked', String(on));
+			toggle.disabled = os;
+			m.querySelector('.pm-status')!.textContent = on ? 'on' : 'off';
+			m.querySelector<HTMLElement>('.pm-note')!.hidden = !os;
+		});
+
+	menus.forEach((m) => {
+		// The header imports this component directly and the menu drawer reaches it through Starlight's
+		// ThemeSelect override, so this script can arrive twice. Bind each menu once.
+		if (m.dataset.bound) return;
+		m.dataset.bound = 'true';
+		const trigger = m.querySelector<HTMLButtonElement>('.pm-trigger')!;
+		const menu = m.querySelector<HTMLElement>('.pm-menu')!;
+		const setOpen = (open: boolean) => {
+			trigger.setAttribute('aria-expanded', String(open));
+			menu.hidden = !open;
+			menu.classList.toggle('is-entering', open && html.dataset.rm === 'ok');
+		};
+		menu.addEventListener('animationend', () => menu.classList.remove('is-entering'));
+		trigger.addEventListener('click', () => setOpen(menu.hidden));
+		document.addEventListener('click', (e) => {
+			if (!menu.hidden && !m.contains(e.target as Node)) setOpen(false);
+		});
+		m.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape' && !menu.hidden) {
+				setOpen(false);
+				trigger.focus();
+			}
+		});
+		m.querySelectorAll<HTMLInputElement>('input[type="radio"]').forEach((r) =>
+			r.addEventListener('change', () => {
+				html.dataset.theme = r.value;
+				try {
+					localStorage.setItem('starlight-theme', r.value);
+				} catch {}
+				sync();
+			}),
+		);
+		m.querySelector('.pm-switch')!.addEventListener('click', () => {
+			try {
+				localStorage.setItem('plank-reduce-motion', String(!siteSetting()));
+			} catch {}
+			plankMotion();
+		});
+	});
+
+	// Until a reader picks a theme, follow the system's, as Starlight does.
+	const light = matchMedia('(prefers-color-scheme: light)');
+	light.addEventListener('change', () => {
+		let stored = '';
+		try {
+			stored = localStorage.getItem('starlight-theme') || '';
+		} catch {}
+		if (!stored) {
+			html.dataset.theme = light.matches ? 'light' : 'dark';
+			sync();
+		}
+	});
+	document.addEventListener('proto:motion', sync);
+	sync();
+</script>
+
+<style>
+	.pm {
+		position: relative;
+		display: flex;
+	}
+	.pm-trigger {
+		all: unset;
+		display: grid;
+		place-items: center;
+		width: 2.4rem;
+		height: 2.4rem;
+		border-radius: 50%;
+		color: var(--sl-color-white);
+		cursor: pointer;
+	}
+	.pm-trigger:hover,
+	.pm-trigger[aria-expanded='true'] {
+		background: var(--sl-color-gray-6);
+	}
+	.pm-trigger:focus-visible {
+		outline: 2px solid var(--plank-teal);
+		outline-offset: 2px;
+	}
+	.pm-trigger svg {
+		width: 28px;
+		height: 26px;
+	}
+
+	.pm-menu {
+		position: absolute;
+		z-index: 20;
+		top: calc(100% + 0.6rem);
+		right: 0;
+		width: 15rem;
+		box-sizing: border-box;
+		padding: 1rem 1.1rem 1.1rem;
+		border-radius: var(--radius);
+		background: var(--sl-color-gray-6);
+		color: var(--sl-color-white);
+		box-shadow: 0 12px 32px rgb(0 0 0 / 0.2);
+	}
+	:global(:root[data-theme='light']) .pm-menu {
+		background: var(--plank-sand);
+		box-shadow: 0 12px 32px rgb(17 38 33 / 0.14);
+	}
+	.pm-menu[hidden] {
+		display: none;
+	}
+	/* In the phone menu drawer's footer, open upwards. */
+	:global(.mobile-preferences) .pm-menu {
+		top: auto;
+		bottom: calc(100% + 0.6rem);
+	}
+	:global(html[data-rm='ok']) .pm-menu.is-entering {
+		animation: pm-in 0.2s var(--ease-out) both;
+	}
+	@keyframes pm-in {
+		from {
+			opacity: 0;
+			translate: 0 -0.35rem;
+		}
+	}
+
+	.pm-group {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		min-inline-size: 0;
+	}
+	.pm-group + .pm-group {
+		margin-top: 1.1rem;
+	}
+	.pm-heading {
+		float: left;
+		width: 100%;
+		margin: 0 0 0.55rem;
+		padding: 0;
+		font: 600 0.7rem/1.3 var(--font-body);
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--sl-color-gray-3);
+	}
+	.pm-seg {
+		clear: both;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.15rem;
+		padding: 0.2rem;
+		border: 1px solid var(--sl-color-gray-5);
+		border-radius: var(--radius);
+	}
+	.pm-seg label {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.4rem;
+		padding: 0.3rem 0.5rem;
+		border-radius: 7px;
+		font: 500 0.85rem/1.4 var(--font-body);
+		color: var(--sl-color-gray-3);
+		cursor: pointer;
+	}
+	.pm-seg label:hover {
+		color: var(--sl-color-white);
+	}
+	.pm-seg label:has(input:checked) {
+		background: var(--plank-coral);
+		color: var(--plank-ink);
+	}
+	.pm-seg label:has(input:focus-visible) {
+		outline: 2px solid var(--plank-teal);
+		outline-offset: 2px;
+	}
+	.pm-seg input {
+		position: absolute;
+		opacity: 0;
+		width: 1px;
+		height: 1px;
+		margin: 0;
+	}
+
+	/* plank.co's switch row: an uppercase label, its status, then the switch. */
+	.pm-row {
+		clear: both;
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		font: 500 0.75rem/1.3 var(--font-body);
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+	}
+	.pm-status {
+		margin-right: auto;
+	}
+	.pm-switch {
+		all: unset;
+		display: flex;
+		border-radius: 999px;
+		cursor: pointer;
+	}
+	.pm-switch:focus-visible {
+		outline: 2px solid var(--plank-teal);
+		outline-offset: 3px;
+	}
+	.pm-switch:disabled {
+		cursor: not-allowed;
+		opacity: 0.7;
+	}
+	.pm-switch svg {
+		width: 40px;
+		height: 19px;
+		overflow: visible;
+	}
+	.pm-track {
+		fill: transparent;
+		stroke: var(--sl-color-white);
+	}
+	.pm-knob {
+		fill: var(--plank-coral);
+	}
+	.pm-switch[aria-checked='true'] .pm-track {
+		fill: var(--sl-color-white);
+	}
+	.pm-switch[aria-checked='true'] .pm-knob {
+		translate: 18px 0;
+	}
+	:global(html[data-rm='ok']) .pm-knob {
+		transition: translate 0.2s var(--ease-out);
+	}
+	.pm-note {
+		margin: 0.6rem 0 0;
+		font: 0.8rem/1.4 var(--font-body);
+		color: var(--sl-color-gray-3);
+	}
+</style>

@@ -4,7 +4,8 @@
 // - ?variant=A|B|C picks the motion variant (data-motion). The URL is the source of truth;
 //   sessionStorage carries it across links, and the URL is rewritten so it stays shareable.
 // - plankMotion() works out data-rm ("ok" or "reduce") from the OS setting, or the bar's simulation
-//   of it, and in C only from the site's own toggle. Everything in motion.css keys off these.
+//   of it, and from the site's own setting (A11yFloat on the landing page, A11yMenu on doc pages).
+//   Everything in motion.css keys off these. The User chose C, so it's the default.
 ---
 
 <script is:inline>
@@ -16,7 +17,7 @@
 		if (!keys.includes(v)) {
 			try { v = sessionStorage.getItem('proto-motion') || ''; } catch {}
 		}
-		if (!keys.includes(v)) v = 'B';
+		if (!keys.includes(v)) v = 'C';
 		root.dataset.motion = v;
 		root.dataset.variant = location.pathname === '/' ? 'B' : 'A';
 		try { sessionStorage.setItem('proto-motion', v); } catch {}
@@ -32,7 +33,7 @@
 			try { sim = sessionStorage.getItem('proto-os') || 'follow'; } catch {}
 			try { site = localStorage.getItem('plank-reduce-motion') === 'true'; } catch {}
 			const os = sim === 'reduce' || (sim === 'follow' && osQuery.matches);
-			const why = os ? 'os' : site && root.dataset.motion === 'C' ? 'site' : '';
+			const why = os ? 'os' : site ? 'site' : '';
 			root.dataset.os = sim;
 			root.dataset.rm = why ? 'reduce' : 'ok';
 			root.dataset.rmWhy = why;
