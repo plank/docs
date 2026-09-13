@@ -1,0 +1,90 @@
+---
+// PROTOTYPE for plank/docs#19: a one-click light/dark toggle in place of Starlight's three-way ThemeSelect,
+// chosen by the User on 2026-09-13 to save space. Until a reader clicks, the page follows the system theme,
+// as Starlight's Auto does. A click is stored under Starlight's own `starlight-theme` key, so Starlight's
+// inline ThemeProvider still paints the right theme before first paint, on the landing page and every
+// Docs Version. The icon shows the theme a click switches to.
+import { Icon } from '@astrojs/starlight/components';
+---
+
+<plank-theme-toggle>
+	<button type="button" class="tt" aria-label="Switch to dark theme">
+		<Icon name="moon" class="tt-moon" />
+		<Icon name="sun" class="tt-sun" />
+	</button>
+</plank-theme-toggle>
+
+<script>
+	const key = 'starlight-theme';
+	const root = document.documentElement;
+	const light = matchMedia('(prefers-color-scheme: light)');
+	const stored = () => {
+		try {
+			const t = localStorage.getItem(key);
+			return t === 'light' || t === 'dark' ? t : null;
+		} catch {
+			return null;
+		}
+	};
+	const label = () => {
+		const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+		document.querySelectorAll('plank-theme-toggle button').forEach((b) => {
+			b.setAttribute('aria-label', `Switch to ${next} theme`);
+			b.setAttribute('title', `Switch to ${next} theme`);
+		});
+	};
+	// With nothing stored, keep following the system, as Starlight's Auto does.
+	light.addEventListener('change', () => {
+		if (!stored()) root.dataset.theme = light.matches ? 'light' : 'dark';
+	});
+	new MutationObserver(label).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+
+	class PlankThemeToggle extends HTMLElement {
+		connectedCallback() {
+			this.querySelector('button')!.addEventListener('click', () => {
+				const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+				try {
+					localStorage.setItem(key, next);
+				} catch {}
+				root.dataset.theme = next;
+			});
+			label();
+		}
+	}
+	customElements.define('plank-theme-toggle', PlankThemeToggle);
+</script>
+
+<style>
+	plank-theme-toggle {
+		display: flex;
+	}
+	.tt {
+		display: grid;
+		place-items: center;
+		width: 2.25rem;
+		height: 2.25rem;
+		padding: 0;
+		border: 0;
+		border-radius: 999px;
+		background: transparent;
+		color: inherit;
+		cursor: pointer;
+		transition: background-color 0.2s;
+	}
+	.tt:hover {
+		background: color-mix(in srgb, currentColor 14%, transparent);
+	}
+	.tt :global(svg) {
+		width: 1.25rem;
+		height: 1.25rem;
+	}
+	.tt :global(.tt-sun) {
+		display: none;
+	}
+	:global(:root[data-theme='dark']) .tt :global(.tt-sun) {
+		display: block;
+	}
+	:global(:root[data-theme='dark']) .tt :global(.tt-moon) {
+		display: none;
+	}
+</style>

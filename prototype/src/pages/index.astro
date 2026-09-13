@@ -5,7 +5,7 @@ import '@fontsource-variable/newsreader/opsz.css';
 import '@fontsource-variable/instrument-sans';
 import '../styles/tokens.css';
 import { Code } from 'astro:components';
-import { Icon } from '@astrojs/starlight/components';
+import ThemeToggle from '../components/ThemeToggle.astro';
 import VariantBoot from '../components/VariantBoot.astro';
 import PrototypeSwitcher from '../components/PrototypeSwitcher.astro';
 import Arrow from '../components/Arrow.astro';
@@ -129,18 +129,8 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 					<nav aria-label="Elsewhere">
 						<a class="plank-link" href="https://github.com/plank">GitHub</a>
 						<a class="plank-link" href="https://plank.co">plank.co</a>
-						<!-- PROTOTYPE for plank/docs#19: Starlight's theme select, redrawn for the band. -->
-						<plank-theme class="theme-pick">
-							<Icon name="laptop" class="ti ti-auto" />
-							<Icon name="moon" class="ti ti-dark" />
-							<Icon name="sun" class="ti ti-light" />
-							<select aria-label="Select theme">
-								<option value="dark">Dark</option>
-								<option value="light">Light</option>
-								<option value="auto" selected>Auto</option>
-							</select>
-							<svg class="ti-caret" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg>
-						</plank-theme>
+						<!-- PROTOTYPE for plank/docs#19: the same one-click toggle as the doc pages. -->
+						<ThemeToggle />
 					</nav>
 				</header>
 				<div class="wrap vb-hero">
@@ -369,94 +359,10 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 			}
 		</script>
 
-		<script>
-			// PROTOTYPE for plank/docs#19: the landing page's theme select. Same storage key and values as
-			// Starlight's, so a choice made here holds on every doc page, and the other way round.
-			class PlankTheme extends HTMLElement {
-				connectedCallback() {
-					const select = this.querySelector('select')!;
-					const light = matchMedia('(prefers-color-scheme: light)');
-					const load = () => {
-						let t: string | null = null;
-						try { t = localStorage.getItem('starlight-theme'); } catch {}
-						return t === 'dark' || t === 'light' ? t : 'auto';
-					};
-					const apply = (choice: string) => {
-						this.dataset.choice = choice;
-						select.value = choice;
-						document.documentElement.dataset.theme = choice === 'auto' ? (light.matches ? 'light' : 'dark') : choice;
-					};
-					select.addEventListener('change', () => {
-						try { localStorage.setItem('starlight-theme', select.value === 'auto' ? '' : select.value); } catch {}
-						apply(select.value);
-					});
-					light.addEventListener('change', () => load() === 'auto' && apply('auto'));
-					document.addEventListener('plank:theme', () => apply(load()));
-					apply(load());
-				}
-			}
-			customElements.define('plank-theme', PlankTheme);
-		</script>
-
 		<style>
 			/* ---------- Dark mode (PROTOTYPE for plank/docs#19) ---------- */
 			.top nav {
 				align-items: center;
-			}
-			.theme-pick {
-				position: relative;
-				display: inline-flex;
-				align-items: center;
-				color: var(--plank-mist);
-			}
-			.theme-pick :global(.ti) {
-				position: absolute;
-				left: 0.65rem;
-				width: 1rem;
-				height: 1rem;
-				display: none;
-				pointer-events: none;
-			}
-			.theme-pick[data-choice='auto'] :global(.ti-auto),
-			.theme-pick[data-choice='dark'] :global(.ti-dark),
-			.theme-pick[data-choice='light'] :global(.ti-light) {
-				display: block;
-			}
-			.theme-pick select {
-				appearance: none;
-				padding: 0.3rem 1.9rem 0.3rem 2.1rem;
-				border: 1px solid rgb(255 255 255 / 0.28);
-				border-radius: var(--radius);
-				background: transparent;
-				color: var(--plank-paper);
-				font: 500 0.92rem/1.4 var(--font-body);
-				cursor: pointer;
-				transition: border-color 0.2s;
-			}
-			.theme-pick select:hover {
-				border-color: rgb(255 255 255 / 0.65);
-			}
-			.theme-pick .ti-caret {
-				position: absolute;
-				right: 0.6rem;
-				width: 0.9rem;
-				height: 0.9rem;
-				fill: none;
-				stroke: currentColor;
-				stroke-width: 1.75;
-				stroke-linecap: round;
-				stroke-linejoin: round;
-				pointer-events: none;
-			}
-			@media (max-width: 30rem) {
-				.theme-pick select {
-					width: 2.3rem;
-					padding-right: 0;
-					color: transparent;
-				}
-				.theme-pick .ti-caret {
-					display: none;
-				}
 			}
 			/* Code samples carry both vitesse themes; dark reads the second. */
 			:global(:root[data-theme='dark'] .sample .astro-code),

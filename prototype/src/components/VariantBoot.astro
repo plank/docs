@@ -14,7 +14,7 @@
 		if (!keys.includes(v)) {
 			try { v = sessionStorage.getItem('proto-dark') || ''; } catch {}
 		}
-		if (!keys.includes(v)) v = 'A';
+		if (!keys.includes(v)) v = 'B'; // Ink, the User's pick on 2026-09-13
 		root.dataset.variant = v;
 		try { sessionStorage.setItem('proto-dark', v); } catch {}
 		if (url.searchParams.get('variant') !== v) {

@@ -24,6 +24,8 @@ export default defineConfig({
 				Head: './src/components/Head.astro',
 				Header: './src/components/Header.astro',
 				Sidebar: './src/components/Sidebar.astro',
+				// plank/docs#19: the one-click toggle, wherever Starlight renders its theme select (the phone menu).
+				ThemeSelect: './src/components/ThemeToggle.astro',
 			},
 			routeMiddleware: './src/routeData.ts',
 			expressiveCode: {

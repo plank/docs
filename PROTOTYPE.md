@@ -35,11 +35,17 @@ Shared by all three:
 
 Contrast: all text is at least 4.5:1 on its surface. The lowest is faint text on raised surfaces, at 4.64–4.93:1. Hairlines are 1.5–1.9:1.
 
-## How a reader chooses (as built, not decided)
+**The User chose B · Ink on 2026-09-13**, so `?variant=` now defaults to B.
 
-- **Doc pages:** Starlight's theme select (Dark, Light, Auto), unchanged. Auto is the default and follows the system theme. On phones it sits in the menu drawer.
-- **Landing page:** the same select, redrawn for the forest band. On phones it's icon-only.
-- **One choice for the whole site.** Both use Starlight's `localStorage` key, `starlight-theme`. The landing page and every Docs Version share the origin `packages.plank.co`, so a choice made on any page holds on all of them.
+## How a reader chooses
+
+- **A one-click toggle, on both pages** (the User, 2026-09-13, "Save space."). `src/components/ThemeToggle.astro` replaces Starlight's three-way ThemeSelect in the doc header, in the phone menu drawer (a Starlight component override), and in the landing page's forest band.
+- As built, not decided:
+  - Until a reader clicks, the page follows the system theme, as Starlight's Auto does.
+  - A click switches light ↔ dark and is stored. From then on the system theme is ignored, and there's no way back to following it short of clearing site data.
+  - The icon shows the theme a click switches to: a moon in light, a sun in dark.
+  - On phones, doc pages keep the toggle in the menu drawer, where Starlight puts its select.
+- **One choice for the whole site.** The toggle uses Starlight's `localStorage` key, `starlight-theme`, so Starlight's inline theme script still sets the theme before first paint. The landing page and every Docs Version share the origin `packages.plank.co`, so a choice made on any page holds on all of them.
 
 ## Real and stand-in
 
