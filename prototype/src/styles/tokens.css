@@ -26,15 +26,86 @@
 	--ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* The landing page reads these, so one swap themes it. Light is plank.co's own. */
+:root {
+	color-scheme: light;
+	--surface: var(--plank-paper);
+	--surface-raised: var(--plank-sand);
+	--text: var(--plank-ink);
+	--text-soft: var(--plank-ink-soft);
+	--rule: var(--plank-rule);
+	--focus: var(--plank-teal);
+	--select-bg: var(--plank-forest);
+	--select-fg: #fff;
+}
+
+/* PROTOTYPE for plank/docs#19: three dark palettes, picked by ?variant=. plank.co has no dark palette,
+   so each takes its colours in a different direction. docs.css maps them onto Starlight's grays. */
+
+/* A · Forest night: plank.co's forest greens become the ground. */
+:root[data-variant='A'] {
+	--dk-bg: #112621;
+	--dk-raised: #1d3832;
+	--dk-rule: #34544b;
+	--dk-faint: #8aa29b;
+	--dk-soft: #aebdb7;
+	--dk-body: #d5dbd3;
+	--dk-bright: #eef1ed;
+	--dk-strong: #fcfbfa;
+	--dk-code: #0b1c18;
+	--dk-accent-low: #3b2a24;
+	--dk-accent-high: #ffd3c6;
+}
+/* B · Ink: a near-neutral black, with the brand kept to the forest band and coral. */
+:root[data-variant='B'] {
+	--dk-bg: #0f1312;
+	--dk-raised: #191e1c;
+	--dk-rule: #2c3431;
+	--dk-faint: #838d89;
+	--dk-soft: #a2aba7;
+	--dk-body: #c9ceca;
+	--dk-bright: #e9ebe8;
+	--dk-strong: #f6f4f1;
+	--dk-code: #151a18;
+	--dk-accent-low: #3a2620;
+	--dk-accent-high: #ffc9b8;
+}
+/* C · Warm dusk: plank.co's warm paper and sand, dimmed. */
+:root[data-variant='C'] {
+	--dk-bg: #1c1a17;
+	--dk-raised: #282521;
+	--dk-rule: #3d3934;
+	--dk-faint: #978f85;
+	--dk-soft: #b0a99f;
+	--dk-body: #d8d3cb;
+	--dk-bright: #f0ede8;
+	--dk-strong: #fcfbfa;
+	--dk-code: #161411;
+	--dk-accent-low: #3e2b23;
+	--dk-accent-high: #ffd3c6;
+}
+
+:root[data-theme='dark'] {
+	color-scheme: dark;
+	--surface: var(--dk-bg);
+	--surface-raised: var(--dk-raised);
+	--text: var(--dk-strong);
+	--text-soft: var(--dk-soft);
+	--rule: var(--dk-rule);
+	--focus: var(--plank-coral);
+	--select-bg: var(--plank-coral);
+	--select-fg: var(--plank-ink);
+}
+
 ::selection {
-	background: var(--plank-forest);
-	color: #fff;
+	background: var(--select-bg);
+	color: var(--select-fg);
 }
 
 /* PROTOTYPE: show only the active variant's pieces. */
-html:not([data-variant='A']) [data-v='A'],
-html:not([data-variant='B']) [data-v='B'],
-html:not([data-variant='C']) [data-v='C'] {
+html:not([data-layout='A']) [data-v='A'],
+html:not([data-layout='B']) [data-v='B'],
+html:not([data-layout='C']) [data-v='C'] {
 	display: none !important;
 }
 
@@ -47,6 +118,7 @@ html:not([data-variant='C']) [data-v='C'] {
 }
 .plank-link:hover {
 	background-size: 100% 100%;
+	color: var(--plank-ink);
 }
 
 /* plank.co's button: coral, wobbly edges, uppercase, a hand-drawn arrow that stretches out. */
@@ -96,7 +168,7 @@ html:not([data-variant='C']) [data-v='C'] {
 }
 
 :focus-visible {
-	outline: 2px solid var(--plank-teal);
+	outline: 2px solid var(--focus);
 	outline-offset: 3px;
 }
 

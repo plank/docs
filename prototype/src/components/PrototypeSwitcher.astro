@@ -1,5 +1,6 @@
 ---
-// PROTOTYPE chrome, not part of any design: cycles ?variant= with the arrows or ←/→.
+// PROTOTYPE chrome, not part of any design: cycles ?variant= (the dark palette) with the arrows or ←/→,
+// and flips light/dark so each palette can be compared with the light site it extends.
 // Rendered by the dev server only, so a stray build can't ship it.
 const show = import.meta.env.DEV;
 ---
@@ -15,6 +16,8 @@ const show = import.meta.env.DEV;
 				<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>
 			</button>
 			<span class="proto-sep" aria-hidden="true" />
+			<button type="button" class="proto-theme" />
+			<span class="proto-sep" aria-hidden="true" />
 			<a href="/">Landing</a>
 			<a href="/publisher/13.x/guides/installation/">Doc page</a>
 		</div>
@@ -24,33 +27,46 @@ const show = import.meta.env.DEV;
 <script>
 	const bar = document.querySelector<HTMLElement>('.proto-bar');
 	if (bar) {
+		const root = document.documentElement;
 		const variants = [
-			{ key: 'A', name: 'Major Line matrix' },
-			{ key: 'B', name: 'composer require' },
-			{ key: 'C', name: 'plank.co editorial' },
+			{ key: 'A', name: 'Forest night' },
+			{ key: 'B', name: 'Ink' },
+			{ key: 'C', name: 'Warm dusk' },
 		];
 		const label = bar.querySelector<HTMLElement>('.proto-label')!;
-		const current = () => Math.max(0, variants.findIndex((v) => v.key === document.documentElement.dataset.variant));
+		const themeBtn = bar.querySelector<HTMLButtonElement>('.proto-theme')!;
+		const current = () => Math.max(0, variants.findIndex((v) => v.key === root.dataset.variant));
 		const render = () => {
 			const v = variants[current()];
 			label.textContent = `${v.key} · ${v.name}`;
+			const dark = root.dataset.theme !== 'light';
+			themeBtn.textContent = dark ? 'Dark' : 'Light';
+			themeBtn.setAttribute('aria-label', dark ? 'Showing dark, switch to light' : 'Showing light, switch to dark');
 		};
 		const go = (dir: number) => {
 			const v = variants[(current() + dir + variants.length) % variants.length];
-			document.documentElement.dataset.variant = v.key;
-			try { sessionStorage.setItem('proto-variant', v.key); } catch {}
+			root.dataset.variant = v.key;
+			try { sessionStorage.setItem('proto-dark', v.key); } catch {}
 			const url = new URL(location.href);
 			url.searchParams.set('variant', v.key);
 			history.replaceState(null, '', url);
 			render();
-			document.dispatchEvent(new CustomEvent('proto:variant', { detail: v.key }));
 		};
+		// Same storage key as Starlight's theme select, so the choice carries between the landing page and doc pages.
+		themeBtn.addEventListener('click', () => {
+			const t = root.dataset.theme === 'light' ? 'dark' : 'light';
+			try { localStorage.setItem('starlight-theme', t); } catch {}
+			root.dataset.theme = t;
+			(window as any).StarlightThemeProvider?.updatePickers?.(t);
+			document.dispatchEvent(new CustomEvent('plank:theme', { detail: t }));
+		});
+		new MutationObserver(render).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
 		bar.querySelectorAll<HTMLButtonElement>('button[data-dir]').forEach((b) =>
 			b.addEventListener('click', () => go(Number(b.dataset.dir))),
 		);
 		document.addEventListener('keydown', (e) => {
 			const t = e.target as HTMLElement;
-			if (t.closest('input, textarea, select, [contenteditable]') || e.metaKey || e.ctrlKey || e.altKey) return;
+			if (t.closest('input, textarea, select, [contenteditable], [role="tablist"]') || e.metaKey || e.ctrlKey || e.altKey) return;
 			if (e.key === 'ArrowLeft') go(-1);
 			if (e.key === 'ArrowRight') go(1);
 		});
@@ -74,7 +90,7 @@ const show = import.meta.env.DEV;
 		color: #fff;
 		font: 500 13px/1 system-ui, sans-serif;
 		letter-spacing: 0;
-		box-shadow: 0 6px 24px rgb(0 0 0 / 0.35), 0 0 0 1px rgb(255 255 255 / 0.12);
+		box-shadow: 0 6px 24px rgb(0 0 0 / 0.35), 0 0 0 1px rgb(255 255 255 / 0.18);
 		white-space: nowrap;
 	}
 	.proto-bar button,
@@ -106,8 +122,13 @@ const show = import.meta.env.DEV;
 		stroke-linejoin: round;
 	}
 	.proto-label {
-		min-width: 11.5rem;
+		min-width: 8.5rem;
 		text-align: center;
+	}
+	.proto-theme {
+		min-width: 3.5rem !important;
+		outline: 1px solid rgb(255 255 255 / 0.3);
+		outline-offset: -1px;
 	}
 	.proto-sep {
 		width: 1px;
@@ -119,7 +140,8 @@ const show = import.meta.env.DEV;
 		.proto-label {
 			min-width: 0;
 		}
-		.proto-bar a {
+		.proto-bar a,
+		.proto-sep:last-of-type {
 			display: none;
 		}
 	}

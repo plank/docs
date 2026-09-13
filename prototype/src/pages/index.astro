@@ -5,6 +5,7 @@ import '@fontsource-variable/newsreader/opsz.css';
 import '@fontsource-variable/instrument-sans';
 import '../styles/tokens.css';
 import { Code } from 'astro:components';
+import { Icon } from '@astrojs/starlight/components';
 import VariantBoot from '../components/VariantBoot.astro';
 import PrototypeSwitcher from '../components/PrototypeSwitcher.astro';
 import Arrow from '../components/Arrow.astro';
@@ -28,6 +29,16 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 		<meta name="description" content="Open-source Laravel packages from Plank, and their documentation." />
 		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 		<VariantBoot />
+		<!-- PROTOTYPE for plank/docs#19: Starlight's own theme boot, so the landing page and doc pages
+		     share one choice (the same `starlight-theme` key on the same origin). -->
+		<script is:inline>
+			(() => {
+				let t;
+				try { t = localStorage.getItem('starlight-theme'); } catch {}
+				document.documentElement.dataset.theme =
+					t === 'light' || t === 'dark' ? t : matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+			})();
+		</script>
 	</head>
 	<body>
 		<!-- ==================== A · Major Line matrix ==================== -->
@@ -118,6 +129,18 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 					<nav aria-label="Elsewhere">
 						<a class="plank-link" href="https://github.com/plank">GitHub</a>
 						<a class="plank-link" href="https://plank.co">plank.co</a>
+						<!-- PROTOTYPE for plank/docs#19: Starlight's theme select, redrawn for the band. -->
+						<plank-theme class="theme-pick">
+							<Icon name="laptop" class="ti ti-auto" />
+							<Icon name="moon" class="ti ti-dark" />
+							<Icon name="sun" class="ti ti-light" />
+							<select aria-label="Select theme">
+								<option value="dark">Dark</option>
+								<option value="light">Light</option>
+								<option value="auto" selected>Auto</option>
+							</select>
+							<svg class="ti-caret" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg>
+						</plank-theme>
 					</nav>
 				</header>
 				<div class="wrap vb-hero">
@@ -185,7 +208,7 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 							</div>
 							<figure class="sample vb-sample">
 								<figcaption>{p.sampleLabel}</figcaption>
-								<Code code={p.sample} lang="php" theme="vitesse-light" />
+								<Code code={p.sample} lang="php" themes={{ light: 'vitesse-light', dark: 'vitesse-dark' }} />
 							</figure>
 						</section>
 					))
@@ -346,11 +369,105 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 			}
 		</script>
 
+		<script>
+			// PROTOTYPE for plank/docs#19: the landing page's theme select. Same storage key and values as
+			// Starlight's, so a choice made here holds on every doc page, and the other way round.
+			class PlankTheme extends HTMLElement {
+				connectedCallback() {
+					const select = this.querySelector('select')!;
+					const light = matchMedia('(prefers-color-scheme: light)');
+					const load = () => {
+						let t: string | null = null;
+						try { t = localStorage.getItem('starlight-theme'); } catch {}
+						return t === 'dark' || t === 'light' ? t : 'auto';
+					};
+					const apply = (choice: string) => {
+						this.dataset.choice = choice;
+						select.value = choice;
+						document.documentElement.dataset.theme = choice === 'auto' ? (light.matches ? 'light' : 'dark') : choice;
+					};
+					select.addEventListener('change', () => {
+						try { localStorage.setItem('starlight-theme', select.value === 'auto' ? '' : select.value); } catch {}
+						apply(select.value);
+					});
+					light.addEventListener('change', () => load() === 'auto' && apply('auto'));
+					document.addEventListener('plank:theme', () => apply(load()));
+					apply(load());
+				}
+			}
+			customElements.define('plank-theme', PlankTheme);
+		</script>
+
 		<style>
+			/* ---------- Dark mode (PROTOTYPE for plank/docs#19) ---------- */
+			.top nav {
+				align-items: center;
+			}
+			.theme-pick {
+				position: relative;
+				display: inline-flex;
+				align-items: center;
+				color: var(--plank-mist);
+			}
+			.theme-pick :global(.ti) {
+				position: absolute;
+				left: 0.65rem;
+				width: 1rem;
+				height: 1rem;
+				display: none;
+				pointer-events: none;
+			}
+			.theme-pick[data-choice='auto'] :global(.ti-auto),
+			.theme-pick[data-choice='dark'] :global(.ti-dark),
+			.theme-pick[data-choice='light'] :global(.ti-light) {
+				display: block;
+			}
+			.theme-pick select {
+				appearance: none;
+				padding: 0.3rem 1.9rem 0.3rem 2.1rem;
+				border: 1px solid rgb(255 255 255 / 0.28);
+				border-radius: var(--radius);
+				background: transparent;
+				color: var(--plank-paper);
+				font: 500 0.92rem/1.4 var(--font-body);
+				cursor: pointer;
+				transition: border-color 0.2s;
+			}
+			.theme-pick select:hover {
+				border-color: rgb(255 255 255 / 0.65);
+			}
+			.theme-pick .ti-caret {
+				position: absolute;
+				right: 0.6rem;
+				width: 0.9rem;
+				height: 0.9rem;
+				fill: none;
+				stroke: currentColor;
+				stroke-width: 1.75;
+				stroke-linecap: round;
+				stroke-linejoin: round;
+				pointer-events: none;
+			}
+			@media (max-width: 30rem) {
+				.theme-pick select {
+					width: 2.3rem;
+					padding-right: 0;
+					color: transparent;
+				}
+				.theme-pick .ti-caret {
+					display: none;
+				}
+			}
+			/* Code samples carry both vitesse themes; dark reads the second. */
+			:global(:root[data-theme='dark'] .sample .astro-code),
+			:global(:root[data-theme='dark'] .sample .astro-code span) {
+				color: var(--shiki-dark) !important;
+			}
+
 			body {
 				margin: 0;
-				background: var(--plank-paper);
-				color: var(--plank-ink);
+				background: var(--surface);
+				color: var(--text);
 				font: 400 1.0625rem/1.75 var(--font-body);
 				letter-spacing: -0.01em;
 				-webkit-font-smoothing: antialiased;
@@ -397,10 +514,10 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 			}
 			.brand-site {
 				padding-left: 0.8rem;
-				border-left: 1px solid var(--plank-rule);
+				border-left: 1px solid var(--rule);
 				font-weight: 500;
 				line-height: 1.3;
-				color: var(--plank-ink-soft);
+				color: var(--text-soft);
 			}
 			.top nav {
 				display: flex;
@@ -421,22 +538,22 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 			}
 			.foot {
 				padding-block: 2.5rem 6rem;
-				border-top: 1px solid var(--plank-rule);
-				color: var(--plank-ink-soft);
+				border-top: 1px solid var(--rule);
+				color: var(--text-soft);
 				font-size: 0.95rem;
 			}
 			.sample {
 				margin: 0;
 				padding: 1.25rem 1.5rem 1.4rem;
 				border-radius: var(--radius);
-				background: var(--plank-sand);
+				background: var(--surface-raised);
 			}
 			.sample figcaption {
 				margin-bottom: 0.6rem;
 				font: 500 0.78rem/1.4 var(--font-body);
 				letter-spacing: 0.06em;
 				text-transform: uppercase;
-				color: var(--plank-ink-soft);
+				color: var(--text-soft);
 			}
 			.sample :global(pre) {
 				margin: 0;
@@ -482,7 +599,7 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 				margin-top: 1.5rem;
 				font-size: 1.25rem;
 				line-height: 1.6;
-				color: var(--plank-ink-soft);
+				color: var(--text-soft);
 			}
 			.va-scroll {
 				position: relative;
@@ -500,7 +617,7 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 				font: 500 0.8rem/1.4 var(--font-body);
 				letter-spacing: 0.08em;
 				text-transform: uppercase;
-				color: var(--plank-ink-soft);
+				color: var(--text-soft);
 			}
 			.va-matrix thead th.va-col {
 				width: 8rem;
@@ -508,7 +625,7 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 				text-align: center;
 			}
 			.va-matrix tbody tr {
-				border-bottom: 1px solid var(--plank-rule);
+				border-bottom: 1px solid var(--rule);
 			}
 			.va-matrix tbody th {
 				padding: 2.25rem 2rem 2.25rem 0;
@@ -530,14 +647,14 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 			.va-matrix tbody th p {
 				max-width: 38rem;
 				margin-top: 0.7rem;
-				color: var(--plank-ink-soft);
+				color: var(--text-soft);
 			}
 			.va-matrix tbody th code {
 				display: inline-block;
 				margin-top: 1rem;
 				padding: 0.3rem 0.6rem;
 				border-radius: 6px;
-				background: var(--plank-sand);
+				background: var(--surface-raised);
 				font: 0.85rem/1.5 var(--font-code);
 			}
 			.va-matrix td {
@@ -578,7 +695,7 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 			}
 			.va-none {
 				font-size: 0.8rem;
-				color: var(--plank-ink-soft);
+				color: var(--text-soft);
 			}
 			@media (max-width: 48rem) {
 				.va-matrix,
@@ -740,12 +857,12 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 				max-width: 34rem;
 				margin: 1.25rem 0 2.25rem;
 				font-size: 1.15rem;
-				color: var(--plank-ink-soft);
+				color: var(--text-soft);
 			}
 			.vb-older {
 				margin-top: 1.5rem;
 				font-size: 0.95rem;
-				color: var(--plank-ink-soft);
+				color: var(--text-soft);
 			}
 			.vb-sample {
 				rotate: 1.5deg;
@@ -810,7 +927,7 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 				max-width: 34rem;
 				margin: 2.25rem 0 2.75rem;
 				font-size: clamp(1.15rem, 1.6vw, 1.35rem);
-				color: var(--plank-ink-soft);
+				color: var(--text-soft);
 			}
 			.vc-list {
 				display: flex;
@@ -864,7 +981,7 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 				max-width: 36rem;
 				margin: 1.25rem 0 1.75rem;
 				font-size: 1.15rem;
-				color: var(--plank-ink-soft);
+				color: var(--text-soft);
 			}
 			.vc-links {
 				display: flex;
@@ -873,7 +990,7 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 				gap: 0.75rem 2rem;
 				margin-top: 1.75rem;
 				font-size: 0.95rem;
-				color: var(--plank-ink-soft);
+				color: var(--text-soft);
 			}
 			.link-arrow {
 				display: inline-flex;
@@ -895,8 +1012,8 @@ const older = (p: (typeof packages)[number]) => p.majors.filter((m) => m !== new
 			}
 			.vc-foot {
 				padding-block: 2.75rem 6rem;
-				background: var(--plank-sand);
-				color: var(--plank-ink-soft);
+				background: var(--surface-raised);
+				color: var(--text-soft);
 				font-size: 0.95rem;
 			}
 			@media (max-width: 52rem) {

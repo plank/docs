@@ -1,19 +1,22 @@
 ---
-// PROTOTYPE: picks the variant before first paint. The URL is the source of truth; sessionStorage
-// carries it across links that don't repeat ?variant=, and the URL is rewritten so it stays shareable.
+// PROTOTYPE for plank/docs#19: picks the dark palette before first paint. ?variant= is the source of
+// truth; sessionStorage carries it across links that drop it, and the URL is rewritten so it stays shareable.
+// The layouts are fixed to the ones chosen in plank/docs#7: landing page B, doc page A.
 ---
 
 <script is:inline>
 	(() => {
+		const root = document.documentElement;
+		root.dataset.layout = location.pathname === '/' ? 'B' : 'A';
 		const keys = ['A', 'B', 'C'];
 		const url = new URL(location.href);
 		let v = (url.searchParams.get('variant') || '').toUpperCase();
 		if (!keys.includes(v)) {
-			try { v = sessionStorage.getItem('proto-variant') || ''; } catch {}
+			try { v = sessionStorage.getItem('proto-dark') || ''; } catch {}
 		}
 		if (!keys.includes(v)) v = 'A';
-		document.documentElement.dataset.variant = v;
-		try { sessionStorage.setItem('proto-variant', v); } catch {}
+		root.dataset.variant = v;
+		try { sessionStorage.setItem('proto-dark', v); } catch {}
 		if (url.searchParams.get('variant') !== v) {
 			url.searchParams.set('variant', v);
 			history.replaceState(null, '', url);

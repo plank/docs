@@ -1,7 +1,8 @@
 // @ts-check
-// PROTOTYPE for plank/docs#7 "What do the landing page and a doc page look like?" — throwaway.
-// Three variants of the landing page and a doc page, switchable via ?variant=A|B|C on `/` and on
-// every doc page. One build holds two Packages' 13.x docs; a real Docs Version is one Package, one build.
+// PROTOTYPE for plank/docs#19 "Does the Docs Site have a dark mode, and what does it look like?" — throwaway.
+// Built on the plank/docs#7 prototype. Three dark palettes for the chosen landing page (B) and doc page (A),
+// switchable via ?variant=A|B|C on `/` and on every doc page. One build holds two Packages' 13.x docs;
+// a real Docs Version is one Package, one build.
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 

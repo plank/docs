@@ -11,18 +11,18 @@
 	--sl-text-h3: 1.5rem;
 	--sl-text-h4: 1.2rem;
 
-	/* Dark: plank.co has no dark palette, so this one is built from its forest greens. */
-	--sl-color-accent-low: #3b2a24;
-	--sl-color-accent: #ff9375;
-	--sl-color-accent-high: #ffd3c6;
-	--sl-color-white: #fcfbfa;
-	--sl-color-gray-1: #eef1ed;
-	--sl-color-gray-2: #d5dbd3;
-	--sl-color-gray-3: #aebdb7;
-	--sl-color-gray-4: #7c948d;
-	--sl-color-gray-5: #3a5a52;
-	--sl-color-gray-6: #1d3832;
-	--sl-color-black: #112621;
+	/* Dark: one of the three palettes in tokens.css, picked by ?variant= (plank/docs#19). */
+	--sl-color-accent-low: var(--dk-accent-low);
+	--sl-color-accent: var(--plank-coral);
+	--sl-color-accent-high: var(--dk-accent-high);
+	--sl-color-white: var(--dk-strong);
+	--sl-color-gray-1: var(--dk-bright);
+	--sl-color-gray-2: var(--dk-body);
+	--sl-color-gray-3: var(--dk-soft);
+	--sl-color-gray-4: var(--dk-faint);
+	--sl-color-gray-5: var(--dk-rule);
+	--sl-color-gray-6: var(--dk-raised);
+	--sl-color-black: var(--dk-bg);
 }
 :root[data-theme='light'],
 [data-theme='light'] ::backdrop {
@@ -204,45 +204,45 @@ h1#_top {
 }
 
 /* ---------- A · Major Line matrix ---------- */
-html[data-variant='A'] .ph-versions {
+html[data-layout='A'] .ph-versions {
 	margin-left: 0.5rem;
 }
 @media (max-width: 50rem) {
-	html[data-variant='A'] .ph-versions {
+	html[data-layout='A'] .ph-versions {
 		display: none;
 	}
 }
 
 /* ---------- B · composer require ---------- */
-html[data-variant='B'] {
+html[data-layout='B'] {
 	--sl-color-bg-nav: var(--plank-forest);
 	--sl-color-hairline-shade: var(--plank-forest-deep);
 }
-html[data-variant='B'] header.header :is(.ph-home, .ph-pkg, .ph-gh) {
+html[data-layout='B'] header.header :is(.ph-home, .ph-pkg, .ph-gh) {
 	color: var(--plank-paper);
 }
-html[data-variant='B'] header.header .ph-logo-ink {
+html[data-layout='B'] header.header .ph-logo-ink {
 	display: none;
 }
-html[data-variant='B'] header.header .ph-logo-white {
+html[data-layout='B'] header.header .ph-logo-white {
 	display: block;
 }
-html[data-variant='B'] header.header :is(.ph-site, .ph-slash) {
+html[data-layout='B'] header.header :is(.ph-site, .ph-slash) {
 	color: var(--plank-sage);
 	border-color: rgb(255 255 255 / 0.25);
 }
-html[data-variant='B'] header.header site-search button[data-open-modal] {
+html[data-layout='B'] header.header site-search button[data-open-modal] {
 	background: rgb(255 255 255 / 0.08);
 	border-color: rgb(255 255 255 / 0.22);
 	color: var(--plank-mist);
 }
-html[data-variant='B'] header.header starlight-theme-select {
+html[data-layout='B'] header.header starlight-theme-select {
 	color: var(--plank-mist);
 	--sl-color-gray-1: var(--plank-paper);
 	--sl-color-gray-2: var(--plank-mist);
 }
-html[data-variant='B'] .sidebar-pane,
-html[data-variant='B'] header.header ~ * .sidebar-pane {
+html[data-layout='B'] .sidebar-pane,
+html[data-layout='B'] header.header ~ * .sidebar-pane {
 	border-inline-end-color: var(--sl-color-gray-6);
 }
 .ps-b,
@@ -285,19 +285,19 @@ html[data-variant='B'] header.header ~ * .sidebar-pane {
 }
 
 /* ---------- C · plank.co editorial ---------- */
-html[data-variant='C'] {
+html[data-layout='C'] {
 	--sl-nav-height: 4.75rem;
 	--sl-text-h1: 3.4rem;
 }
-html[data-variant='C'] .ph-logo {
+html[data-layout='C'] .ph-logo {
 	height: 2.3rem;
 }
-html[data-variant='C'] .ph-site,
-html[data-variant='C'] .ph-slash,
-html[data-variant='C'] .ph-pkg {
+html[data-layout='C'] .ph-site,
+html[data-layout='C'] .ph-slash,
+html[data-layout='C'] .ph-pkg {
 	display: none;
 }
-html[data-variant='C'] h1#_top::after {
+html[data-layout='C'] h1#_top::after {
 	content: '';
 	display: block;
 	width: 10rem;
@@ -305,7 +305,7 @@ html[data-variant='C'] h1#_top::after {
 	margin-top: 0.6rem;
 	background: url('/squiggle-coral.svg') no-repeat left center / contain;
 }
-html[data-variant='C'] .sl-markdown-content h2 {
+html[data-layout='C'] .sl-markdown-content h2 {
 	margin-top: 2.5em;
 }
 .ps-c-name {
@@ -313,4 +313,18 @@ html[data-variant='C'] .sl-markdown-content h2 {
 	font: 600 2rem/1.05 var(--font-display);
 	letter-spacing: -0.015em;
 	color: var(--sl-color-white);
+}
+
+/* ---------- Dark code blocks (PROTOTYPE for plank/docs#19) ---------- */
+/* vitesse-dark's own #121212 sits on each palette's code colour instead. */
+:root[data-theme='dark'] .expressive-code {
+	--ec-codeBg: var(--dk-code) !important;
+	--ec-frm-edBg: var(--dk-code) !important;
+	--ec-frm-edActTabBg: var(--dk-code) !important;
+	--ec-frm-edTabBarBg: var(--dk-raised) !important;
+	--ec-frm-edTabBarBrdBtmCol: var(--dk-rule) !important;
+	--ec-frm-trmBg: var(--dk-code) !important;
+	--ec-frm-trmTtbBg: var(--dk-raised) !important;
+	--ec-frm-trmTtbBrdBtmCol: var(--dk-rule) !important;
+	--ec-brdCol: var(--dk-rule) !important;
 }
